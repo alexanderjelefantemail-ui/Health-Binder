@@ -332,6 +332,53 @@
   /* bottom safe area */
   .page-footer { height: 32px; }
 
+  /* ── CARB SCANNER ── */
+  .scan-upload-box {
+    border: 2px dashed var(--border);
+    border-radius: 12px;
+    padding: 28px 16px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: rgba(74,158,255,0.03);
+    margin-bottom: 14px;
+  }
+  .scan-upload-box:active { border-color: var(--accent); background: rgba(74,158,255,0.08); }
+  .scan-upload-box .scan-icon { font-size: 44px; margin-bottom: 8px; }
+  .scan-upload-box .scan-label { font-size: 13px; color: var(--silver-dim); }
+  .scan-upload-box .scan-label strong { color: var(--accent); }
+  .scan-preview { width: 100%; border-radius: 10px; max-height: 260px; object-fit: cover; display: block; margin-bottom: 14px; }
+  .scan-result-strip {
+    display: grid; grid-template-columns: repeat(4,1fr); gap: 8px; margin-bottom: 14px;
+  }
+  .scan-result-box {
+    background: rgba(74,158,255,0.08);
+    border: 1px solid rgba(74,158,255,0.2);
+    border-radius: 8px; padding: 10px 6px; text-align: center;
+  }
+  .scan-result-box.carb { background: rgba(240,192,64,0.1); border-color: rgba(240,192,64,0.3); }
+  .scan-result-val { font-family: 'Bebas Neue', sans-serif; font-size: 22px; color: var(--accent); line-height: 1; }
+  .scan-result-box.carb .scan-result-val { color: var(--gold); }
+  .scan-result-lbl { font-size: 9px; letter-spacing: 0.8px; color: var(--silver-dim); text-transform: uppercase; margin-top: 3px; }
+  .food-item-row { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--border); }
+  .food-item-row:last-child { border-bottom: none; }
+  .food-item-name { flex: 1; font-size: 13px; color: var(--silver-bright); }
+  .food-item-portion { font-size: 11px; color: var(--silver-dim); }
+  .food-item-carb { font-family: 'Bebas Neue', sans-serif; font-size: 18px; color: var(--gold); min-width: 44px; text-align: right; }
+  .scan-history-row { border-bottom: 1px solid var(--border); padding: 10px 0; }
+  .scan-history-row:last-child { border-bottom: none; }
+  .scan-history-date { font-size: 10px; color: var(--silver-dim); letter-spacing: 1px; margin-bottom: 4px; }
+  .scan-history-foods { font-size: 12px; color: var(--silver-bright); }
+  .scan-history-carbs { font-family: 'Bebas Neue', sans-serif; font-size: 20px; color: var(--gold); }
+  .diabetes-alert {
+    background: rgba(74,158,255,0.07);
+    border: 1px solid rgba(74,158,255,0.25);
+    border-radius: 8px; padding: 10px 12px;
+    font-size: 12px; color: var(--silver-bright);
+    line-height: 1.5; margin-top: 10px;
+  }
+  .diabetes-alert strong { color: var(--accent); }
+
   /* ── MEAL RECIPE MODAL ── */
   .modal-overlay {
     display: none;
@@ -473,6 +520,7 @@
   <button class="tab-btn" onclick="showPage('recipes')">Recipes</button>
   <button class="tab-btn" onclick="showPage('carbs')">Carb Guide</button>
   <button class="tab-btn" onclick="showPage('reflection')">Reflection</button>
+  <button class="tab-btn" onclick="showPage('carbscan')">Carb Scan</button>
 </div>
 
 <!-- ══════════════════════════════════ DASHBOARD ══════════════════════════════════ -->
@@ -737,6 +785,78 @@
   <div class="page-footer"></div>
 </div>
 
+<!-- CARB SCANNER PAGE -->
+<div class="page" id="page-carbscan">
+
+  <div class="card" style="background:linear-gradient(135deg,rgba(26,48,96,0.9),rgba(10,22,40,0.9));border-color:rgba(74,158,255,0.3);">
+    <div style="font-size:11px;font-weight:700;letter-spacing:2px;color:var(--gold);margin-bottom:6px;text-transform:uppercase;">AI Carb Scanner</div>
+    <div style="font-size:13px;color:var(--silver-bright);line-height:1.6;">
+      Take a photo of your plate and AI will identify the foods and estimate carbohydrates, calories, protein, and fat. Results are estimates — always verify for insulin dosing decisions.
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Scan a Meal</div>
+    <div class="scan-upload-box" onclick="document.getElementById('carbScanInput').click()">
+      <div class="scan-icon">📷</div>
+      <div class="scan-label"><strong>Tap to take a photo</strong> or choose from library</div>
+      <div class="scan-label" style="margin-top:6px;font-size:11px;">Works best with clearly visible foods on a plate</div>
+    </div>
+    <input type="file" id="carbScanInput" accept="image/*" capture="environment" style="display:none" onchange="handleCarbScan(event)">
+
+    <div id="carbScanPreviewWrap" style="display:none;">
+      <img id="carbScanPreview" class="scan-preview" alt="Food photo">
+      <div id="carbScanLoading" style="display:none;">
+        <div class="modal-loading" style="padding:20px;">
+          <div class="spinner"></div>
+          <div class="loading-text">Analyzing your plate...</div>
+        </div>
+      </div>
+      <div id="carbScanResults" style="display:none;">
+        <div class="scan-result-strip">
+          <div class="scan-result-box carb">
+            <div class="scan-result-val" id="scanTotalCarbs">--</div>
+            <div class="scan-result-lbl">Carbs (g)</div>
+          </div>
+          <div class="scan-result-box">
+            <div class="scan-result-val" id="scanTotalCal">--</div>
+            <div class="scan-result-lbl">Calories</div>
+          </div>
+          <div class="scan-result-box">
+            <div class="scan-result-val" id="scanTotalPro">--</div>
+            <div class="scan-result-lbl">Protein (g)</div>
+          </div>
+          <div class="scan-result-box">
+            <div class="scan-result-val" id="scanTotalFat">--</div>
+            <div class="scan-result-lbl">Fat (g)</div>
+          </div>
+        </div>
+
+        <div class="card-title" style="font-size:13px;margin-bottom:10px;">Foods Identified</div>
+        <div id="scanFoodList"></div>
+
+        <div id="scanDiabetesTip" class="diabetes-alert" style="margin-top:12px;"></div>
+
+        <button class="btn btn-primary" style="margin-top:14px;" onclick="saveScanResult()">Save to History</button>
+        <button class="btn" style="margin-top:8px;background:var(--navy-light);border:1px solid var(--border);color:var(--silver);width:100%;" onclick="resetCarbScan()">Scan Another Plate</button>
+      </div>
+
+      <div id="carbScanError" style="display:none;text-align:center;padding:20px;color:var(--silver-dim);">
+        <div style="font-size:28px;margin-bottom:10px;">⚠️</div>
+        <div style="font-size:13px;margin-bottom:14px;">Could not analyze the photo. Please try again with better lighting or a clearer view of the food.</div>
+        <button class="btn btn-primary" style="width:auto;padding:10px 24px;" onclick="resetCarbScan()">Try Again</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Scan History</div>
+    <div id="carbScanHistory"><div style="font-size:13px;color:var(--silver-dim);text-align:center;padding:16px;">No scans saved yet.</div></div>
+  </div>
+
+  <div class="page-footer"></div>
+</div>
+
 <!-- MEAL RECIPE MODAL -->
 <div class="modal-overlay" id="mealModal" onclick="handleModalOverlayClick(event)">
   <div class="modal-card" id="mealModalCard">
@@ -908,7 +1028,7 @@ function showPage(name) {
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
   document.getElementById('page-' + name).classList.add('active');
   const tabs = document.querySelectorAll('.tab-btn');
-  const names = ['dashboard','weight','photos','habits','glucose','meals','snacks','exercise','recipes','carbs','reflection'];
+  const names = ['dashboard','weight','photos','habits','glucose','meals','snacks','exercise','recipes','carbs','reflection','carbscan'];
   const idx = names.indexOf(name);
   if (idx >= 0) tabs[idx].classList.add('active');
   tabs[idx] && tabs[idx].scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
@@ -918,6 +1038,7 @@ function showPage(name) {
   if (name === 'glucose') renderGlucose();
   if (name === 'photos') renderPhotos();
   if (name === 'reflection') renderReflections();
+  if (name === 'carbscan') renderCarbScanHistory();
 }
 
 // ═══════════════════════════ WEIGHT ═══════════════════════════
@@ -1827,7 +1948,164 @@ function renderReflections() {
 }
 
 // ═══════════════════════════ INIT ═══════════════════════════
-function clearAllData() {
+// ═══════════════════════════ CARB SCANNER ═══════════════════════════
+
+var pendingScanData = null;
+var pendingScanResult = null;
+
+function handleCarbScan(event) {
+  var file = event.target.files[0];
+  if (!file) return;
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    pendingScanData = e.target.result;
+    document.getElementById('carbScanPreview').src = pendingScanData;
+    document.getElementById('carbScanPreviewWrap').style.display = 'block';
+    document.getElementById('carbScanLoading').style.display = 'block';
+    document.getElementById('carbScanResults').style.display = 'none';
+    document.getElementById('carbScanError').style.display = 'none';
+    analyzeFoodPhoto(pendingScanData);
+  };
+  reader.readAsDataURL(file);
+}
+
+async function analyzeFoodPhoto(imageData) {
+  // Strip the data URL prefix to get pure base64
+  var base64 = imageData.split(',')[1];
+  var mimeMatch = imageData.match(/data:([^;]+);/);
+  var mimeType = mimeMatch ? mimeMatch[1] : 'image/jpeg';
+
+  var prompt = 'You are a registered dietitian and diabetes nutrition expert analyzing a photo of a meal for a person with Type 1 diabetes using Omnipod 5 and Libre 2+. Their daily carb targets are: Breakfast 15-25g, Lunch 20-30g, Dinner 20-30g, Snacks 5-15g.
+
+Look carefully at this photo and identify every food item visible. Estimate portion sizes based on what you can see. Then calculate the nutritional content.
+
+Return ONLY a valid JSON object with no markdown, no explanation:
+{
+  "foods": [
+    {"name": "Food name", "portion": "estimated portion", "carbs": 0, "calories": 0, "protein": 0, "fat": 0}
+  ],
+  "totals": {"carbs": 0, "calories": 0, "protein": 0, "fat": 0},
+  "mealType": "Breakfast or Lunch or Dinner or Snack",
+  "diabetesTip": "One specific tip about managing blood sugar with this meal using Omnipod 5 or Libre 2+. Include pre-bolus timing if relevant.",
+  "planNote": "One sentence on how well this meal aligns with the weight loss plan guidelines (half plate vegetables, lean protein, small carb portion)."
+}
+
+Be as accurate as possible with carb counts. If you cannot identify a food clearly, make your best estimate and note it in the food name.';
+
+  try {
+    var response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        messages: [{
+          role: 'user',
+          content: [{
+            type: 'image',
+            source: { type: 'base64', media_type: mimeType, data: base64 }
+          }, {
+            type: 'text',
+            text: prompt
+          }]
+        }]
+      })
+    });
+
+    var data = await response.json();
+    var rawText = data.content.filter(function(b) { return b.type === 'text'; }).map(function(b) { return b.text; }).join('');
+    var clean = rawText.replace(/```json|```/g, '').trim();
+    var result = JSON.parse(clean);
+    pendingScanResult = result;
+    displayScanResults(result);
+  } catch(err) {
+    document.getElementById('carbScanLoading').style.display = 'none';
+    document.getElementById('carbScanError').style.display = 'block';
+  }
+}
+
+function displayScanResults(result) {
+  document.getElementById('carbScanLoading').style.display = 'none';
+
+  var t = result.totals;
+  document.getElementById('scanTotalCarbs').textContent = t.carbs;
+  document.getElementById('scanTotalCal').textContent = t.calories;
+  document.getElementById('scanTotalPro').textContent = t.protein;
+  document.getElementById('scanTotalFat').textContent = t.fat;
+
+  var foodHtml = '';
+  result.foods.forEach(function(food) {
+    foodHtml += '<div class="food-item-row">';
+    foodHtml += '<div><div class="food-item-name">' + food.name + '</div>';
+    foodHtml += '<div class="food-item-portion">' + food.portion + '</div></div>';
+    foodHtml += '<div class="food-item-carb">' + food.carbs + 'g</div>';
+    foodHtml += '</div>';
+  });
+  document.getElementById('scanFoodList').innerHTML = foodHtml;
+
+  var tipHtml = '';
+  if (result.diabetesTip) {
+    tipHtml += '<strong>Diabetes Tip (Omnipod 5 / Libre 2+):</strong> ' + result.diabetesTip;
+  }
+  if (result.planNote) {
+    tipHtml += '<br><br><strong style="color:var(--gold)">Plan Alignment:</strong> ' + result.planNote;
+  }
+  document.getElementById('scanDiabetesTip').innerHTML = tipHtml;
+
+  document.getElementById('carbScanResults').style.display = 'block';
+}
+
+function saveScanResult() {
+  if (!pendingScanResult || !pendingScanData) return;
+  if (!state.carbScans) state.carbScans = [];
+  state.carbScans.unshift({
+    date: todayStr(),
+    time: new Date().toLocaleTimeString('en-US', {hour: '2-digit', minute:'2-digit'}),
+    image: pendingScanData,
+    result: pendingScanResult
+  });
+  // Keep last 20 scans
+  if (state.carbScans.length > 20) state.carbScans = state.carbScans.slice(0, 20);
+  saveState();
+  renderCarbScanHistory();
+  toast('Scan saved!');
+  resetCarbScan();
+}
+
+function resetCarbScan() {
+  pendingScanData = null;
+  pendingScanResult = null;
+  document.getElementById('carbScanPreviewWrap').style.display = 'none';
+  document.getElementById('carbScanInput').value = '';
+  document.getElementById('carbScanLoading').style.display = 'none';
+  document.getElementById('carbScanResults').style.display = 'none';
+  document.getElementById('carbScanError').style.display = 'none';
+}
+
+function renderCarbScanHistory() {
+  var container = document.getElementById('carbScanHistory');
+  if (!state.carbScans || state.carbScans.length === 0) {
+    container.innerHTML = '<div style="font-size:13px;color:var(--silver-dim);text-align:center;padding:16px;">No scans saved yet.</div>';
+    return;
+  }
+  var html = '';
+  state.carbScans.forEach(function(scan) {
+    var foods = scan.result.foods.map(function(f) { return f.name; }).join(', ');
+    html += '<div class="scan-history-row">';
+    html += '<div style="display:flex;gap:10px;align-items:center;">';
+    html += '<img src="' + scan.image + '" style="width:52px;height:52px;border-radius:6px;object-fit:cover;flex-shrink:0;">';
+    html += '<div style="flex:1;">';
+    html += '<div class="scan-history-date">' + fmtDate(scan.date) + ' at ' + scan.time + '</div>';
+    html += '<div class="scan-history-foods" style="margin:2px 0;">' + foods + '</div>';
+    html += '<div style="display:flex;gap:12px;margin-top:4px;">';
+    html += '<span class="scan-history-carbs">' + scan.result.totals.carbs + 'g <span style="font-size:10px;color:var(--silver-dim);font-family:Montserrat,sans-serif;">carbs</span></span>';
+    html += '<span style="font-size:12px;color:var(--silver-dim);padding-top:4px;">' + scan.result.totals.calories + ' cal</span>';
+    html += '</div></div></div></div>';
+  });
+  container.innerHTML = html;
+}
+
+function clearAllData() { {
   if (confirm('Clear all tracked data and start fresh? This cannot be undone.')) {
     localStorage.removeItem('wl_binder_v2');
     state = { weightLog: [], habits: {}, glucose: {}, photos: [], reflections: [] };
