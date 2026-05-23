@@ -1975,22 +1975,19 @@ async function analyzeFoodPhoto(imageData) {
   var mimeMatch = imageData.match(/data:([^;]+);/);
   var mimeType = mimeMatch ? mimeMatch[1] : 'image/jpeg';
 
-  var prompt = 'You are a registered dietitian and diabetes nutrition expert analyzing a photo of a meal for a person with Type 1 diabetes using Omnipod 5 and Libre 2+. Their daily carb targets are: Breakfast 15-25g, Lunch 20-30g, Dinner 20-30g, Snacks 5-15g.
-
-Look carefully at this photo and identify every food item visible. Estimate portion sizes based on what you can see. Then calculate the nutritional content.
-
-Return ONLY a valid JSON object with no markdown, no explanation:
-{
-  "foods": [
-    {"name": "Food name", "portion": "estimated portion", "carbs": 0, "calories": 0, "protein": 0, "fat": 0}
-  ],
-  "totals": {"carbs": 0, "calories": 0, "protein": 0, "fat": 0},
-  "mealType": "Breakfast or Lunch or Dinner or Snack",
-  "diabetesTip": "One specific tip about managing blood sugar with this meal using Omnipod 5 or Libre 2+. Include pre-bolus timing if relevant.",
-  "planNote": "One sentence on how well this meal aligns with the weight loss plan guidelines (half plate vegetables, lean protein, small carb portion)."
-}
-
-Be as accurate as possible with carb counts. If you cannot identify a food clearly, make your best estimate and note it in the food name.';
+  var prompt = [
+    'You are a registered dietitian and diabetes nutrition expert analyzing a photo of a meal',
+    'for a person with Type 1 diabetes using Omnipod 5 and Libre 2+.',
+    'Daily carb targets: Breakfast 15-25g, Lunch 20-30g, Dinner 20-30g, Snacks 5-15g.',
+    'Look carefully at this photo and identify every food item visible.',
+    'Estimate portion sizes based on what you can see.',
+    'Return ONLY a valid JSON object, no markdown, no explanation:',
+    '{"foods":[{"name":"Food name","portion":"estimated portion","carbs":0,"calories":0,"protein":0,"fat":0}],',
+    '"totals":{"carbs":0,"calories":0,"protein":0,"fat":0},',
+    '"mealType":"Breakfast or Lunch or Dinner or Snack",',
+    '"diabetesTip":"One tip about managing blood sugar with this meal using Omnipod 5 or Libre 2+ including pre-bolus timing.",',
+    '"planNote":"One sentence on how well this meal aligns with the plan guidelines."}'
+  ].join(' ');
 
   try {
     var response = await fetch('https://api.anthropic.com/v1/messages', {
