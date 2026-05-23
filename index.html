@@ -993,7 +993,7 @@ function mealLink(name, type) {
 }
 
 // ═══════════════════════════ STATE ═══════════════════════════
-let state = { weightLog: [], habits: {}, glucose: {}, photos: [], reflections: [] };
+let state = { weightLog: [], habits: {}, glucose: {}, photos: [], reflections: [], carbScans: [] };
 
 function loadState() {
   const saved = localStorage.getItem('wl_binder_v2');
@@ -2105,7 +2105,7 @@ function renderCarbScanHistory() {
   container.innerHTML = html;
 }
 
-function clearAllData() { {
+function clearAllData() {
   if (confirm('Clear all tracked data and start fresh? This cannot be undone.')) {
     localStorage.removeItem('wl_binder_v2');
     state = { weightLog: [], habits: {}, glucose: {}, photos: [], reflections: [] };
