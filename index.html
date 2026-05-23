@@ -789,69 +789,63 @@
 <div class="page" id="page-carbscan">
 
   <div class="card" style="background:linear-gradient(135deg,rgba(26,48,96,0.9),rgba(10,22,40,0.9));border-color:rgba(74,158,255,0.3);">
-    <div style="font-size:11px;font-weight:700;letter-spacing:2px;color:var(--gold);margin-bottom:6px;text-transform:uppercase;">AI Carb Scanner</div>
+    <div style="font-size:11px;font-weight:700;letter-spacing:2px;color:var(--gold);margin-bottom:6px;text-transform:uppercase;">Carb Calculator</div>
     <div style="font-size:13px;color:var(--silver-bright);line-height:1.6;">
-      Take a photo of your plate and AI will identify the foods and estimate carbohydrates, calories, protein, and fat. Results are estimates — always verify for insulin dosing decisions.
+      Take a photo for your records, then search and add each food for an accurate carb and nutrition breakdown. Built-in database of 100+ foods. Works fully offline.
     </div>
   </div>
 
   <div class="card">
-    <div class="card-title">Scan a Meal</div>
+    <div class="card-title">Step 1 — Photo (Optional)</div>
     <div class="scan-upload-box" onclick="document.getElementById('carbScanInput').click()">
-      <div class="scan-icon">📷</div>
-      <div class="scan-label"><strong>Tap to take a photo</strong> or choose from library</div>
-      <div class="scan-label" style="margin-top:6px;font-size:11px;">Works best with clearly visible foods on a plate</div>
+      <div class="scan-icon" id="scanPhotoIcon">&#128247;</div>
+      <div class="scan-label" id="scanPhotoLabel"><strong>Tap to photograph your meal</strong></div>
     </div>
-    <input type="file" id="carbScanInput" accept="image/*" capture="environment" style="display:none" onchange="handleCarbScan(event)">
+    <input type="file" id="carbScanInput" accept="image/*" capture="environment" style="display:none" onchange="handleCarbPhoto(event)">
+    <img id="carbScanPreview" class="scan-preview" alt="Meal photo" style="display:none;margin-top:10px;">
+  </div>
 
-    <div id="carbScanPreviewWrap" style="display:none;">
-      <img id="carbScanPreview" class="scan-preview" alt="Food photo">
-      <div id="carbScanLoading" style="display:none;">
-        <div class="modal-loading" style="padding:20px;">
-          <div class="spinner"></div>
-          <div class="loading-text">Analyzing your plate...</div>
-        </div>
+  <div class="card">
+    <div class="card-title">Step 2 — Add Foods to Your Plate</div>
+    <div style="position:relative;margin-bottom:4px;">
+      <input type="text" id="foodSearchInput" placeholder="Search: bread, chicken, apple, rice..." oninput="searchFoods(this.value)">
+      <div id="foodSearchResults" style="display:none;position:absolute;left:0;right:0;top:44px;background:var(--navy-mid);border:1px solid var(--border);border-radius:0 0 8px 8px;z-index:200;max-height:200px;overflow-y:auto;box-shadow:0 8px 24px rgba(0,0,0,0.4);"></div>
+    </div>
+    <div style="font-size:11px;color:var(--silver-dim);margin-bottom:12px;">Tap a result to add it. Tap again to adjust portion.</div>
+    <div id="noFoodsMsg" style="font-size:12px;color:var(--silver-dim);text-align:center;padding:12px 0;">No foods added yet.</div>
+    <div id="addedFoodsList"></div>
+  </div>
+
+  <div class="card" id="scanTotalsCard" style="display:none;">
+    <div class="card-title">Nutrition Totals</div>
+    <div class="scan-result-strip">
+      <div class="scan-result-box carb">
+        <div class="scan-result-val" id="scanTotalCarbs">0</div>
+        <div class="scan-result-lbl">Carbs (g)</div>
       </div>
-      <div id="carbScanResults" style="display:none;">
-        <div class="scan-result-strip">
-          <div class="scan-result-box carb">
-            <div class="scan-result-val" id="scanTotalCarbs">--</div>
-            <div class="scan-result-lbl">Carbs (g)</div>
-          </div>
-          <div class="scan-result-box">
-            <div class="scan-result-val" id="scanTotalCal">--</div>
-            <div class="scan-result-lbl">Calories</div>
-          </div>
-          <div class="scan-result-box">
-            <div class="scan-result-val" id="scanTotalPro">--</div>
-            <div class="scan-result-lbl">Protein (g)</div>
-          </div>
-          <div class="scan-result-box">
-            <div class="scan-result-val" id="scanTotalFat">--</div>
-            <div class="scan-result-lbl">Fat (g)</div>
-          </div>
-        </div>
-
-        <div class="card-title" style="font-size:13px;margin-bottom:10px;">Foods Identified</div>
-        <div id="scanFoodList"></div>
-
-        <div id="scanDiabetesTip" class="diabetes-alert" style="margin-top:12px;"></div>
-
-        <button class="btn btn-primary" style="margin-top:14px;" onclick="saveScanResult()">Save to History</button>
-        <button class="btn" style="margin-top:8px;background:var(--navy-light);border:1px solid var(--border);color:var(--silver);width:100%;" onclick="resetCarbScan()">Scan Another Plate</button>
+      <div class="scan-result-box">
+        <div class="scan-result-val" id="scanTotalCal">0</div>
+        <div class="scan-result-lbl">Calories</div>
       </div>
-
-      <div id="carbScanError" style="display:none;text-align:center;padding:20px;color:var(--silver-dim);">
-        <div style="font-size:28px;margin-bottom:10px;">⚠️</div>
-        <div style="font-size:13px;margin-bottom:14px;">Could not analyze the photo. Please try again with better lighting or a clearer view of the food.</div>
-        <button class="btn btn-primary" style="width:auto;padding:10px 24px;" onclick="resetCarbScan()">Try Again</button>
+      <div class="scan-result-box">
+        <div class="scan-result-val" id="scanTotalPro">0</div>
+        <div class="scan-result-lbl">Protein (g)</div>
       </div>
+      <div class="scan-result-box">
+        <div class="scan-result-val" id="scanTotalFat">0</div>
+        <div class="scan-result-lbl">Fat (g)</div>
+      </div>
+    </div>
+    <div id="scanCarbTarget" style="margin-top:10px;font-size:12px;color:var(--silver-dim);text-align:center;line-height:1.6;"></div>
+    <div style="display:flex;gap:8px;margin-top:14px;">
+      <button class="btn btn-primary" style="margin-top:0;" onclick="saveScanResult()">Save Meal</button>
+      <button class="btn" style="margin-top:0;background:var(--navy-light);border:1px solid var(--border);color:var(--silver);flex:1;" onclick="resetCarbScan()">Clear</button>
     </div>
   </div>
 
   <div class="card">
-    <div class="card-title">Scan History</div>
-    <div id="carbScanHistory"><div style="font-size:13px;color:var(--silver-dim);text-align:center;padding:16px;">No scans saved yet.</div></div>
+    <div class="card-title">Saved Meals</div>
+    <div id="carbScanHistory"><div style="font-size:13px;color:var(--silver-dim);text-align:center;padding:16px;">No meals saved yet.</div></div>
   </div>
 
   <div class="page-footer"></div>
@@ -1950,153 +1944,356 @@ function renderReflections() {
 // ═══════════════════════════ INIT ═══════════════════════════
 // ═══════════════════════════ CARB SCANNER ═══════════════════════════
 
-var pendingScanData = null;
-var pendingScanResult = null;
+// ── FOOD DATABASE (per standard serving) ──
+// Format: [name, serving_label, carbs, calories, protein, fat, fiber]
+var FOOD_DB = [
+  // Breads & Grains
+  ["White bread","1 slice (30g)",14,80,3,1,1],
+  ["Whole wheat bread","1 slice (30g)",12,70,4,1,2],
+  ["Sourdough bread","1 slice (35g)",18,90,4,1,1],
+  ["Bagel","1 medium (98g)",48,245,10,2,2],
+  ["English muffin","1 whole (57g)",25,120,5,1,2],
+  ["Tortilla flour 8-inch","1 tortilla (45g)",22,130,4,3,1],
+  ["Tortilla corn 6-inch","1 tortilla (26g)",12,60,2,1,1],
+  ["Pita bread","1 small (28g)",15,80,3,1,1],
+  ["Rice white cooked","1/3 cup (65g)",15,70,1,0,0],
+  ["Rice brown cooked","1/3 cup (65g)",15,72,2,1,1],
+  ["Pasta cooked","1/2 cup (70g)",20,100,4,1,1],
+  ["Oatmeal cooked","1/2 cup (117g)",14,75,3,2,2],
+  ["Couscous cooked","1/4 cup (40g)",13,60,2,0,1],
+  ["Quinoa cooked","1/3 cup (60g)",18,80,3,1,1],
+  ["Crackers whole grain","6 crackers (28g)",18,120,3,4,2],
+  ["Granola","1/4 cup (30g)",22,140,3,5,2],
+  ["Pancake 4-inch","1 pancake (38g)",15,85,2,3,1],
+  ["Waffle","1 round (75g)",25,185,5,8,1],
+  ["Cornbread","1 piece (60g)",27,185,4,6,1],
+  // Proteins
+  ["Chicken breast grilled","4 oz (113g)",0,186,35,4,0],
+  ["Chicken thigh cooked","4 oz (113g)",0,209,26,11,0],
+  ["Ground turkey cooked","4 oz (113g)",0,193,28,9,0],
+  ["Ground beef 93% lean","4 oz (113g)",0,196,28,9,0],
+  ["Salmon cooked","4 oz (113g)",0,233,31,12,0],
+  ["Tuna canned in water","3 oz (85g)",0,109,24,2,0],
+  ["Shrimp cooked","4 oz (113g)",1,120,23,2,0],
+  ["Cod baked","4 oz (113g)",0,119,26,1,0],
+  ["Tilapia baked","4 oz (113g)",0,145,30,3,0],
+  ["Pork tenderloin","4 oz (113g)",0,136,24,4,0],
+  ["Egg large","1 egg (50g)",0,70,6,5,0],
+  ["Egg whites","2 whites (66g)",0,34,7,0,0],
+  ["Tofu firm","4 oz (113g)",2,88,10,5,0],
+  ["Deli turkey","2 oz (57g)",2,60,11,1,0],
+  ["Deli ham","2 oz (57g)",2,68,10,3,0],
+  ["Bacon","2 strips (16g)",0,86,6,7,0],
+  // Dairy
+  ["Greek yogurt plain","1 cup (227g)",9,150,20,4,0],
+  ["Greek yogurt plain 0%","1 cup (227g)",7,130,23,0,0],
+  ["Cottage cheese low-fat","1/2 cup (113g)",4,90,13,2,0],
+  ["Milk whole","1 cup (244g)",12,149,8,8,0],
+  ["Milk 2%","1 cup (244g)",12,122,8,5,0],
+  ["Milk skim","1 cup (244g)",12,83,8,0,0],
+  ["Cheddar cheese","1 oz (28g)",0,113,7,9,0],
+  ["Mozzarella","1 oz (28g)",1,85,6,6,0],
+  ["Feta cheese","1 oz (28g)",1,75,4,6,0],
+  ["Parmesan","2 tbsp (10g)",1,40,4,3,0],
+  ["Cream cheese","1 tbsp (15g)",1,50,1,5,0],
+  ["Sour cream","2 tbsp (29g)",2,60,1,6,0],
+  ["Heavy cream","2 tbsp (30g)",1,100,1,11,0],
+  // Vegetables non-starchy
+  ["Broccoli","1 cup (91g)",6,31,3,0,2],
+  ["Cauliflower","1 cup (100g)",5,25,2,0,2],
+  ["Cauliflower rice","1 cup (100g)",5,25,2,0,2],
+  ["Spinach raw","2 cups (60g)",2,14,2,0,2],
+  ["Spinach cooked","1/2 cup (90g)",3,21,3,0,2],
+  ["Kale","1 cup (67g)",6,33,2,1,1],
+  ["Lettuce mixed greens","2 cups (60g)",2,15,1,0,1],
+  ["Romaine lettuce","2 cups (94g)",4,18,2,0,2],
+  ["Cucumber","1/2 cup (52g)",2,8,0,0,0],
+  ["Zucchini","1 cup (124g)",4,20,1,0,1],
+  ["Bell pepper red","1 medium (119g)",7,37,1,0,3],
+  ["Bell pepper green","1 medium (119g)",5,24,1,0,2],
+  ["Mushrooms","1 cup (70g)",2,15,2,0,0],
+  ["Tomato","1 medium (123g)",5,22,1,0,1],
+  ["Cherry tomatoes","1/2 cup (75g)",4,27,1,0,1],
+  ["Celery","2 stalks (80g)",3,13,1,0,2],
+  ["Asparagus","6 spears (90g)",4,20,2,0,2],
+  ["Green beans","1 cup (110g)",8,34,2,0,4],
+  ["Brussels sprouts","1 cup (88g)",8,38,3,0,3],
+  ["Cabbage green","1 cup (89g)",5,22,1,0,2],
+  ["Onion","1/4 cup (40g)",6,16,0,0,1],
+  ["Garlic","2 cloves (6g)",2,9,0,0,0],
+  ["Carrots","1 medium (61g)",6,25,1,0,2],
+  ["Snap peas","1/2 cup (65g)",5,26,2,0,2],
+  ["Arugula","2 cups (40g)",2,10,1,0,1],
+  // Starchy vegetables
+  ["Sweet potato baked","1 medium (130g)",26,112,2,0,4],
+  ["White potato baked","1 medium (173g)",37,161,4,0,4],
+  ["Mashed potato","1/2 cup (105g)",18,105,2,1,2],
+  ["Corn","1/2 cup (82g)",16,67,3,1,2],
+  ["Peas","1/2 cup (80g)",11,59,4,0,4],
+  ["Butternut squash","1 cup (140g)",16,63,1,0,3],
+  // Legumes
+  ["Black beans","1/3 cup (86g)",14,76,5,0,6],
+  ["Kidney beans","1/3 cup (86g)",14,75,5,0,6],
+  ["Chickpeas","1/3 cup (82g)",18,89,5,1,5],
+  ["Lentils cooked","1/3 cup (67g)",13,77,6,0,5],
+  ["Edamame","1/2 cup (78g)",7,94,9,4,4],
+  ["Hummus","2 tbsp (30g)",5,70,2,5,2],
+  // Fruits
+  ["Apple small","1 apple (149g)",21,78,0,0,4],
+  ["Banana medium","1 banana (118g)",27,105,1,0,3],
+  ["Orange medium","1 orange (131g)",15,62,1,0,3],
+  ["Strawberries","1/2 cup (76g)",6,24,0,0,2],
+  ["Blueberries","1/2 cup (74g)",11,42,1,0,2],
+  ["Raspberries","1/2 cup (62g)",7,32,1,0,4],
+  ["Grapes","1/2 cup (80g)",14,55,1,0,1],
+  ["Watermelon","1 cup (152g)",11,46,1,0,1],
+  ["Mango","1/2 cup (83g)",13,50,1,0,2],
+  ["Peach medium","1 peach (150g)",14,58,1,0,2],
+  ["Pear medium","1 pear (178g)",27,101,1,0,6],
+  ["Pineapple","1/2 cup (82g)",10,41,0,0,1],
+  ["Cantaloupe","1 cup (156g)",13,53,1,0,1],
+  ["Mixed berries","1/2 cup (70g)",9,36,1,0,3],
+  ["Avocado","1/4 medium (37g)",3,59,1,5,2],
+  ["Avocado half","1/2 medium (75g)",6,120,1,11,5],
+  // Fats & oils
+  ["Olive oil","1 tsp (5g)",0,40,0,5,0],
+  ["Butter","1 tsp (5g)",0,36,0,4,0],
+  ["Peanut butter","1 tbsp (16g)",4,94,4,8,1],
+  ["Almond butter","1 tbsp (16g)",3,98,3,9,1],
+  ["Walnuts","1 oz (28g)",4,185,4,18,2],
+  ["Almonds","1 oz (28g)",6,164,6,14,4],
+  ["Cashews","1 oz (28g)",9,157,5,12,1],
+  ["Sunflower seeds","2 tbsp (18g)",4,104,3,9,1],
+  ["Chia seeds","1 tbsp (12g)",5,58,2,4,5],
+  ["Flaxseed ground","1 tbsp (10g)",3,37,1,3,3],
+  // Sauces & condiments
+  ["Marinara sauce","1/2 cup (125g)",10,70,2,2,2],
+  ["Salsa","1/4 cup (64g)",4,18,1,0,1],
+  ["Ketchup","1 tbsp (17g)",4,19,0,0,0],
+  ["Mustard","1 tsp (5g)",0,3,0,0,0],
+  ["Soy sauce low sodium","1 tbsp (15g)",1,10,1,0,0],
+  ["Hot sauce","1 tsp (5g)",0,1,0,0,0],
+  ["Ranch dressing","2 tbsp (30g)",2,120,1,12,0],
+  ["Caesar dressing","2 tbsp (30g)",2,150,1,16,0],
+  ["Balsamic vinegar","1 tbsp (16g)",3,14,0,0,0],
+  ["Olive oil vinaigrette","1.5 tbsp (22g)",1,100,0,11,0],
+  ["Greek yogurt ranch","2 tbsp (30g)",2,35,2,1,0],
+  ["Coconut aminos","1 tbsp (15g)",3,10,0,0,0],
+  // Snacks & extras
+  ["String cheese","1 stick (28g)",1,80,6,5,0],
+  ["Popcorn","2 cups (16g)",12,62,2,1,2],
+  ["Pretzels","1 oz (28g)",22,108,3,1,1],
+  ["Potato chips","1 oz (28g)",15,152,2,10,1],
+  ["Dark chocolate 70%","1 oz (28g)",13,170,2,12,2],
+  ["Honey","1 tsp (7g)",6,21,0,0,0],
+  ["Sugar","1 tsp (4g)",4,16,0,0,0],
+  ["Maple syrup","1 tbsp (20g)",13,52,0,0,0],
+  ["Jam or jelly","1 tbsp (20g)",13,51,0,0,0],
+  // Beverages
+  ["Orange juice","1/2 cup (124g)",13,56,1,0,0],
+  ["Apple juice","1/2 cup (124g)",15,58,0,0,0],
+  ["Milk whole 1 cup","1 cup (244g)",12,149,8,8,0],
+  ["Sports drink Gatorade","8 oz (240g)",14,50,0,0,0],
+  ["Coconut water","1 cup (240g)",9,46,2,0,3],
+];
 
-function handleCarbScan(event) {
+// Current scan state
+var scanPhoto = null;
+var scanFoods = [];  // [{dbIndex, multiplier, name, serving, carbs, cal, pro, fat, fiber}]
+
+function handleCarbPhoto(event) {
   var file = event.target.files[0];
   if (!file) return;
   var reader = new FileReader();
   reader.onload = function(e) {
-    pendingScanData = e.target.result;
-    document.getElementById('carbScanPreview').src = pendingScanData;
-    document.getElementById('carbScanPreviewWrap').style.display = 'block';
-    document.getElementById('carbScanLoading').style.display = 'block';
-    document.getElementById('carbScanResults').style.display = 'none';
-    document.getElementById('carbScanError').style.display = 'none';
-    analyzeFoodPhoto(pendingScanData);
+    scanPhoto = e.target.result;
+    var preview = document.getElementById('carbScanPreview');
+    preview.src = scanPhoto;
+    preview.style.display = 'block';
+    document.getElementById('scanPhotoIcon').textContent = '';
+    document.getElementById('scanPhotoIcon').style.display = 'none';
+    document.getElementById('scanPhotoLabel').textContent = 'Photo saved. Change photo anytime.';
+    document.getElementById('scanPhotoLabel').style.color = 'var(--success)';
   };
   reader.readAsDataURL(file);
 }
 
-async function analyzeFoodPhoto(imageData) {
-  // Strip the data URL prefix to get pure base64
-  var base64 = imageData.split(',')[1];
-  var mimeMatch = imageData.match(/data:([^;]+);/);
-  var mimeType = mimeMatch ? mimeMatch[1] : 'image/jpeg';
-
-  var prompt = [
-    'You are a registered dietitian and diabetes nutrition expert analyzing a photo of a meal',
-    'for a person with Type 1 diabetes using Omnipod 5 and Libre 2+.',
-    'Daily carb targets: Breakfast 15-25g, Lunch 20-30g, Dinner 20-30g, Snacks 5-15g.',
-    'Look carefully at this photo and identify every food item visible.',
-    'Estimate portion sizes based on what you can see.',
-    'Return ONLY a valid JSON object, no markdown, no explanation:',
-    '{"foods":[{"name":"Food name","portion":"estimated portion","carbs":0,"calories":0,"protein":0,"fat":0}],',
-    '"totals":{"carbs":0,"calories":0,"protein":0,"fat":0},',
-    '"mealType":"Breakfast or Lunch or Dinner or Snack",',
-    '"diabetesTip":"One tip about managing blood sugar with this meal using Omnipod 5 or Libre 2+ including pre-bolus timing.",',
-    '"planNote":"One sentence on how well this meal aligns with the plan guidelines."}'
-  ].join(' ');
-
-  try {
-    var response = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 1000,
-        messages: [{
-          role: 'user',
-          content: [{
-            type: 'image',
-            source: { type: 'base64', media_type: mimeType, data: base64 }
-          }, {
-            type: 'text',
-            text: prompt
-          }]
-        }]
-      })
-    });
-
-    var data = await response.json();
-    var rawText = data.content.filter(function(b) { return b.type === 'text'; }).map(function(b) { return b.text; }).join('');
-    var clean = rawText.replace(/```json|```/g, '').trim();
-    var result = JSON.parse(clean);
-    pendingScanResult = result;
-    displayScanResults(result);
-  } catch(err) {
-    document.getElementById('carbScanLoading').style.display = 'none';
-    document.getElementById('carbScanError').style.display = 'block';
+function searchFoods(query) {
+  var resultsDiv = document.getElementById('foodSearchResults');
+  if (!query || query.length < 2) {
+    resultsDiv.style.display = 'none';
+    return;
   }
+  var q = query.toLowerCase();
+  var matches = FOOD_DB.map(function(f, i) { return {i: i, f: f}; })
+    .filter(function(x) { return x.f[0].toLowerCase().indexOf(q) !== -1; })
+    .slice(0, 10);
+
+  if (matches.length === 0) {
+    resultsDiv.style.display = 'none';
+    return;
+  }
+
+  var html = '';
+  matches.forEach(function(x) {
+    var f = x.f;
+    html += '<div onclick="addFood(' + x.i + ')" style="padding:10px 14px;border-bottom:1px solid var(--border);cursor:pointer;display:flex;justify-content:space-between;align-items:center;">';
+    html += '<div><div style="font-size:13px;color:var(--silver-bright);font-weight:600;">' + f[0] + '</div>';
+    html += '<div style="font-size:11px;color:var(--silver-dim);">' + f[1] + '</div></div>';
+    html += '<div style="font-family:Bebas Neue,sans-serif;font-size:18px;color:var(--gold);">' + f[2] + 'g <span style="font-size:10px;font-family:Montserrat,sans-serif;color:var(--silver-dim);">carbs</span></div>';
+    html += '</div>';
+  });
+  resultsDiv.innerHTML = html;
+  resultsDiv.style.display = 'block';
 }
 
-function displayScanResults(result) {
-  document.getElementById('carbScanLoading').style.display = 'none';
+function addFood(dbIdx) {
+  var f = FOOD_DB[dbIdx];
+  scanFoods.push({dbIdx: dbIdx, mult: 1, name: f[0], serving: f[1], carbs: f[2], cal: f[3], pro: f[4], fat: f[5], fiber: f[6]});
+  document.getElementById('foodSearchInput').value = '';
+  document.getElementById('foodSearchResults').style.display = 'none';
+  updateFoodList();
+}
 
-  var t = result.totals;
-  document.getElementById('scanTotalCarbs').textContent = t.carbs;
-  document.getElementById('scanTotalCal').textContent = t.calories;
-  document.getElementById('scanTotalPro').textContent = t.protein;
-  document.getElementById('scanTotalFat').textContent = t.fat;
+function removeFood(idx) {
+  scanFoods.splice(idx, 1);
+  updateFoodList();
+}
 
-  var foodHtml = '';
-  result.foods.forEach(function(food) {
-    foodHtml += '<div class="food-item-row">';
-    foodHtml += '<div><div class="food-item-name">' + food.name + '</div>';
-    foodHtml += '<div class="food-item-portion">' + food.portion + '</div></div>';
-    foodHtml += '<div class="food-item-carb">' + food.carbs + 'g</div>';
-    foodHtml += '</div>';
+function changeServings(idx, delta) {
+  var newMult = Math.round((scanFoods[idx].mult + delta) * 10) / 10;
+  if (newMult < 0.5) newMult = 0.5;
+  if (newMult > 10) newMult = 10;
+  scanFoods[idx].mult = newMult;
+  updateFoodList();
+}
+
+function updateFoodList() {
+  var list = document.getElementById('addedFoodsList');
+  var noMsg = document.getElementById('noFoodsMsg');
+  var totalsCard = document.getElementById('scanTotalsCard');
+
+  if (scanFoods.length === 0) {
+    list.innerHTML = '';
+    noMsg.style.display = 'block';
+    totalsCard.style.display = 'none';
+    return;
+  }
+
+  noMsg.style.display = 'none';
+  totalsCard.style.display = 'block';
+
+  var html = '';
+  var totCarbs = 0, totCal = 0, totPro = 0, totFat = 0;
+
+  scanFoods.forEach(function(item, idx) {
+    var m = item.mult;
+    var carbs = Math.round(item.carbs * m);
+    var cal = Math.round(item.cal * m);
+    var pro = Math.round(item.pro * m);
+    var fat = Math.round(item.fat * m);
+    totCarbs += carbs; totCal += cal; totPro += pro; totFat += fat;
+
+    var servingLabel = m === 1 ? item.serving : (m + ' x ' + item.serving);
+
+    html += '<div style="border-bottom:1px solid var(--border);padding:10px 0;">';
+    html += '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">';
+    html += '<div><div style="font-size:13px;font-weight:600;color:var(--silver-bright);">' + item.name + '</div>';
+    html += '<div style="font-size:11px;color:var(--silver-dim);">' + servingLabel + '</div></div>';
+    html += '<div style="display:flex;align-items:center;gap:6px;">';
+    html += '<span style="font-family:Bebas Neue,sans-serif;font-size:20px;color:var(--gold);">' + carbs + 'g</span>';
+    html += '<button onclick="removeFood(' + idx + ')" style="background:rgba(255,74,106,0.15);border:1px solid rgba(255,74,106,0.3);color:var(--danger);border-radius:4px;padding:2px 7px;font-size:13px;cursor:pointer;">x</button>';
+    html += '</div></div>';
+    html += '<div style="display:flex;gap:8px;align-items:center;">';
+    html += '<span style="font-size:11px;color:var(--silver-dim);">Servings:</span>';
+    html += '<button onclick="changeServings(' + idx + ',-0.5)" style="background:var(--navy-light);border:1px solid var(--border);color:var(--silver);border-radius:4px;padding:2px 10px;font-size:16px;cursor:pointer;">-</button>';
+    html += '<span style="font-size:14px;font-weight:700;color:var(--silver);min-width:28px;text-align:center;">' + m + '</span>';
+    html += '<button onclick="changeServings(' + idx + ',0.5)" style="background:var(--navy-light);border:1px solid var(--border);color:var(--silver);border-radius:4px;padding:2px 10px;font-size:16px;cursor:pointer;">+</button>';
+    html += '<span style="font-size:11px;color:var(--silver-dim);margin-left:8px;">' + cal + ' cal | ' + pro + 'g pro | ' + fat + 'g fat</span>';
+    html += '</div></div>';
   });
-  document.getElementById('scanFoodList').innerHTML = foodHtml;
+  list.innerHTML = html;
 
-  var tipHtml = '';
-  if (result.diabetesTip) {
-    tipHtml += '<strong>Diabetes Tip (Omnipod 5 / Libre 2+):</strong> ' + result.diabetesTip;
-  }
-  if (result.planNote) {
-    tipHtml += '<br><br><strong style="color:var(--gold)">Plan Alignment:</strong> ' + result.planNote;
-  }
-  document.getElementById('scanDiabetesTip').innerHTML = tipHtml;
+  document.getElementById('scanTotalCarbs').textContent = totCarbs;
+  document.getElementById('scanTotalCal').textContent = totCal;
+  document.getElementById('scanTotalPro').textContent = totPro;
+  document.getElementById('scanTotalFat').textContent = totFat;
 
-  document.getElementById('carbScanResults').style.display = 'block';
+  var targetMsg = '';
+  if (totCarbs <= 25 && totCarbs >= 15) targetMsg = 'On target for Breakfast (15-25g carbs)';
+  else if (totCarbs <= 30 && totCarbs >= 20) targetMsg = 'On target for Lunch or Dinner (20-30g carbs)';
+  else if (totCarbs < 15) targetMsg = 'Low carb — suitable as a Snack or low-glycemic Breakfast';
+  else targetMsg = 'Higher carb meal — monitor Libre 2+ closely after eating';
+  document.getElementById('scanCarbTarget').innerHTML = '<strong style="color:var(--accent)">Plan check:</strong> ' + targetMsg;
 }
 
 function saveScanResult() {
-  if (!pendingScanResult || !pendingScanData) return;
+  if (scanFoods.length === 0) { toast('Add at least one food first'); return; }
   if (!state.carbScans) state.carbScans = [];
+  var totCarbs = 0, totCal = 0, totPro = 0, totFat = 0;
+  scanFoods.forEach(function(f) {
+    totCarbs += Math.round(f.carbs * f.mult);
+    totCal += Math.round(f.cal * f.mult);
+    totPro += Math.round(f.pro * f.mult);
+    totFat += Math.round(f.fat * f.mult);
+  });
   state.carbScans.unshift({
     date: todayStr(),
-    time: new Date().toLocaleTimeString('en-US', {hour: '2-digit', minute:'2-digit'}),
-    image: pendingScanData,
-    result: pendingScanResult
+    time: new Date().toLocaleTimeString('en-US', {hour:'2-digit', minute:'2-digit'}),
+    image: scanPhoto,
+    foods: scanFoods.map(function(f) { return {name: f.name, serving: f.serving, mult: f.mult, carbs: Math.round(f.carbs * f.mult)}; }),
+    totals: {carbs: totCarbs, cal: totCal, pro: totPro, fat: totFat}
   });
-  // Keep last 20 scans
-  if (state.carbScans.length > 20) state.carbScans = state.carbScans.slice(0, 20);
+  if (state.carbScans.length > 30) state.carbScans = state.carbScans.slice(0, 30);
   saveState();
   renderCarbScanHistory();
-  toast('Scan saved!');
+  toast('Meal saved!');
   resetCarbScan();
 }
 
 function resetCarbScan() {
-  pendingScanData = null;
-  pendingScanResult = null;
-  document.getElementById('carbScanPreviewWrap').style.display = 'none';
+  scanPhoto = null;
+  scanFoods = [];
   document.getElementById('carbScanInput').value = '';
-  document.getElementById('carbScanLoading').style.display = 'none';
-  document.getElementById('carbScanResults').style.display = 'none';
-  document.getElementById('carbScanError').style.display = 'none';
+  var preview = document.getElementById('carbScanPreview');
+  preview.style.display = 'none';
+  preview.src = '';
+  document.getElementById('scanPhotoIcon').style.display = 'block';
+  document.getElementById('scanPhotoIcon').textContent = '\uD83D\uDCF7';
+  document.getElementById('scanPhotoLabel').textContent = 'Tap to photograph your meal';
+  document.getElementById('scanPhotoLabel').style.color = '';
+  document.getElementById('foodSearchInput').value = '';
+  document.getElementById('foodSearchResults').style.display = 'none';
+  document.getElementById('addedFoodsList').innerHTML = '';
+  document.getElementById('noFoodsMsg').style.display = 'block';
+  document.getElementById('scanTotalsCard').style.display = 'none';
 }
 
 function renderCarbScanHistory() {
   var container = document.getElementById('carbScanHistory');
   if (!state.carbScans || state.carbScans.length === 0) {
-    container.innerHTML = '<div style="font-size:13px;color:var(--silver-dim);text-align:center;padding:16px;">No scans saved yet.</div>';
+    container.innerHTML = '<div style="font-size:13px;color:var(--silver-dim);text-align:center;padding:16px;">No meals saved yet.</div>';
     return;
   }
   var html = '';
   state.carbScans.forEach(function(scan) {
-    var foods = scan.result.foods.map(function(f) { return f.name; }).join(', ');
-    html += '<div class="scan-history-row">';
-    html += '<div style="display:flex;gap:10px;align-items:center;">';
-    html += '<img src="' + scan.image + '" style="width:52px;height:52px;border-radius:6px;object-fit:cover;flex-shrink:0;">';
+    html += '<div style="border-bottom:1px solid var(--border);padding:12px 0;">';
+    html += '<div style="display:flex;gap:10px;align-items:flex-start;">';
+    if (scan.image) {
+      html += '<img src="' + scan.image + '" style="width:56px;height:56px;border-radius:8px;object-fit:cover;flex-shrink:0;">';
+    } else {
+      html += '<div style="width:56px;height:56px;border-radius:8px;background:var(--navy-light);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;">&#127869;</div>';
+    }
     html += '<div style="flex:1;">';
-    html += '<div class="scan-history-date">' + fmtDate(scan.date) + ' at ' + scan.time + '</div>';
-    html += '<div class="scan-history-foods" style="margin:2px 0;">' + foods + '</div>';
+    html += '<div style="font-size:10px;color:var(--silver-dim);letter-spacing:1px;">' + fmtDate(scan.date) + ' at ' + scan.time + '</div>';
+    html += '<div style="font-size:12px;color:var(--silver-bright);margin:3px 0;">';
+    scan.foods.forEach(function(f) {
+      html += f.name + (f.mult !== 1 ? ' x' + f.mult : '') + ' &nbsp;';
+    });
+    html += '</div>';
     html += '<div style="display:flex;gap:12px;margin-top:4px;">';
-    html += '<span class="scan-history-carbs">' + scan.result.totals.carbs + 'g <span style="font-size:10px;color:var(--silver-dim);font-family:Montserrat,sans-serif;">carbs</span></span>';
-    html += '<span style="font-size:12px;color:var(--silver-dim);padding-top:4px;">' + scan.result.totals.calories + ' cal</span>';
+    html += '<span style="font-family:Bebas Neue,sans-serif;font-size:20px;color:var(--gold);">' + scan.totals.carbs + 'g <span style="font-size:10px;font-family:Montserrat,sans-serif;color:var(--silver-dim);">carbs</span></span>';
+    html += '<span style="font-size:12px;color:var(--silver-dim);padding-top:4px;">' + scan.totals.cal + ' cal</span>';
     html += '</div></div></div></div>';
   });
   container.innerHTML = html;
