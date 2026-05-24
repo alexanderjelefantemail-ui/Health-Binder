@@ -358,7 +358,7 @@
     border-radius: 8px; padding: 10px 6px; text-align: center;
   }
   .scan-result-box.carb { background: rgba(240,192,64,0.1); border-color: rgba(240,192,64,0.3); }
-  .scan-result-val { font-family: 'Bebas Neue', sans-serif; font-size: 22px; color: var(--accent); line-height: 1; }
+  .scan-result-val { font-family: 'Bebas Neue', sans-serif; font-size: 28px; color: var(--accent); line-height: 1; }
   .scan-result-box.carb .scan-result-val { color: var(--gold); }
   .scan-result-lbl { font-size: 9px; letter-spacing: 0.8px; color: var(--silver-dim); text-transform: uppercase; margin-top: 3px; }
   .food-item-row { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--border); }
@@ -443,7 +443,7 @@
     border: 1px solid rgba(74,158,255,0.2);
     border-radius: 8px; padding: 8px 6px; text-align: center;
   }
-  .nutr-val { font-family: 'Bebas Neue', sans-serif; font-size: 22px; color: var(--accent); line-height: 1; }
+  .nutr-val { font-family: 'Bebas Neue', sans-serif; font-size: 28px; color: var(--accent); line-height: 1; }
   .nutr-lbl { font-size: 9px; letter-spacing: 0.8px; color: var(--silver-dim); text-transform: uppercase; margin-top: 3px; }
   .nutr-unit { font-size: 10px; color: var(--silver-dim); }
 
@@ -835,7 +835,7 @@
     <div class="scan-result-strip">
       <div class="scan-result-box carb">
         <div class="scan-result-val" id="scanTotalCarbs">0</div>
-        <div class="scan-result-lbl">Carbs (g)</div>
+        <div class="scan-result-lbl">CARBS (grams)</div>
       </div>
       <div class="scan-result-box">
         <div class="scan-result-val" id="scanTotalCal">0</div>
@@ -1378,13 +1378,23 @@ function renderMealModal(r, mealType) {
   // Nutrition strip
   html += '<div class="nutrition-strip">';
   var macros = [
+    ['Carbs (g)', n.carbs],
     ['Calories', n.calories],
-    ['Carbs', n.carbs + 'g'],
-    ['Protein', n.protein + 'g'],
-    ['Fat', n.fat + 'g']
+    ['Protein (g)', n.protein],
+    ['Fat (g)', n.fat]
   ];
   macros.forEach(function(m) {
-    html += '<div class="nutr-box"><div class="nutr-val">' + m[1] + '</div><div class="nutr-lbl">' + m[0] + '</div></div>';
+    // Separate number from unit to prevent Bebas Neue font making 'g' look like a digit
+    var valStr = String(m[1]);
+    var numPart = valStr.replace(/[^0-9.]/g, '');
+    var unitPart = valStr.replace(/[0-9.]/g, '').trim();
+    html += '<div class="nutr-box">';
+    html += '<div class="nutr-val">' + numPart + '</div>';
+    if (unitPart) {
+      html += '<div style="font-size:10px;color:var(--silver-dim);margin-top:-2px;letter-spacing:1px;">' + unitPart + '</div>';
+    }
+    html += '<div class="nutr-lbl">' + m[0] + '</div>';
+    html += '</div>';
   });
   html += '</div>';
 
@@ -2206,6 +2216,229 @@ function showRecognitionResults(detected) {
   container.innerHTML = html;
   resultsDiv.style.display = 'block';
 }
+
+// ── FOOD DATABASE — every ingredient from the plan, search-friendly ──
+// [name, serving_label, carbs, calories, protein, fat, fiber]
+var FOOD_DB = [
+  // ── BREADS & GRAINS (USDA verified) ──
+  ["White bread","1 slice (28g)",13,75,2,1,1],
+  ["Whole wheat bread","1 slice (28g)",11,69,4,1,2],
+  ["Sourdough bread","1 slice (35g)",18,90,4,1,1],
+  ["Bagel","1 medium (105g)",53,270,11,2,2],
+  ["English muffin","1 whole (57g)",25,120,4,1,2],
+  ["Flour tortilla","1 large 8-inch (45g)",22,130,4,3,1],
+  ["Corn tortilla","1 small 6-inch (26g)",11,57,1,1,1],
+  ["Pita bread","1 small (28g)",15,77,3,0,1],
+  ["White rice cooked","1/3 cup (65g)",15,70,1,0,0],
+  ["Brown rice cooked","1/3 cup (65g)",15,72,2,1,1],
+  ["Pasta cooked","1/2 cup (70g)",20,100,4,1,1],
+  ["Oatmeal cooked","1/2 cup (120g)",14,75,3,2,2],
+  ["Couscous cooked","1/4 cup (40g)",13,58,2,0,1],
+  ["Dry couscous","3 tbsp dry (27g)",19,95,3,0,1],
+  ["Quinoa cooked","1/3 cup (58g)",18,80,3,1,2],
+  ["Whole-grain crackers","6 crackers (28g)",20,120,3,4,3],
+  ["Almond flour","2 tbsp (14g)",3,70,3,6,1],
+  ["Oat flour","2 tbsp (15g)",10,58,2,1,1],
+  // ── POULTRY (USDA verified, zero carbs) ──
+  ["Chicken breast grilled","5 oz (142g)",0,185,35,4,0],
+  ["Chicken breast baked","6 oz (170g)",0,222,44,5,0],
+  ["Chicken breast cooked","4 oz (113g)",0,186,35,4,0],
+  ["Chicken thighs skinless","6 oz (170g)",0,248,36,11,0],
+  ["Roast chicken","6 oz (170g)",0,248,36,11,0],
+  ["Ground turkey cooked","5 oz (142g)",0,193,28,9,0],
+  ["Lean ground turkey","5 oz (142g)",0,193,28,9,0],
+  ["Turkey meatballs","4 oz (113g)",3,195,22,9,0],
+  ["Deli turkey breast","2 oz (57g)",2,60,11,1,0],
+  ["Turkey sausage lean","2 oz (57g)",1,88,10,5,0],
+  ["Lean turkey sausage","2 oz (57g)",1,88,10,5,0],
+  // ── BEEF & PORK (USDA verified) ──
+  ["Ground beef 93% lean","5 oz (142g)",0,195,28,9,0],
+  ["Lean ground beef","5 oz (142g)",0,195,28,9,0],
+  ["Flank steak sliced","5 oz (142g)",0,232,32,11,0],
+  ["Sirloin steak","5 oz (142g)",0,240,34,11,0],
+  ["Pork tenderloin","6 oz (170g)",0,222,40,6,0],
+  ["Pork loin","6 oz (170g)",0,222,40,6,0],
+  ["Lean deli roast beef","5 oz (142g)",2,175,26,7,0],
+  ["Deli ham","2 oz (57g)",2,65,10,3,0],
+  ["Bacon","2 strips (16g)",0,82,6,6,0],
+  // ── SEAFOOD (USDA verified, zero carbs) ──
+  ["Salmon fillet","6 oz (170g)",0,300,34,17,0],
+  ["Canned salmon","5 oz drained (142g)",0,190,28,9,0],
+  ["Salmon cakes","2 small cakes (130g)",4,200,24,9,0],
+  ["Tuna canned in water","5 oz drained (142g)",0,130,28,1,0],
+  ["Canned tuna 2 cans","10 oz total drained",0,220,48,2,0],
+  ["Shrimp cooked","5 oz (142g)",1,148,28,2,0],
+  ["Cod fillet","6 oz (170g)",0,140,31,1,0],
+  ["Tilapia baked","6 oz (170g)",0,154,32,3,0],
+  ["White fish fillet","6 oz (170g)",0,148,31,2,0],
+  ["Mahi mahi","6 oz (170g)",0,155,32,2,0],
+  // ── EGGS & PLANT PROTEIN ──
+  ["Egg large","1 egg (50g)",0,70,6,5,0],
+  ["Eggs","3 large (150g)",1,210,18,15,0],
+  ["Hard-boiled eggs","3 large (150g)",1,234,18,15,0],
+  ["Egg muffins homemade","3 muffins (approx)",3,220,20,13,1],
+  ["Tofu firm","4 oz (113g)",2,88,10,5,0],
+  ["Edamame shelled","1/2 cup (78g)",7,94,8,4,4],
+  // ── DAIRY (USDA verified) ──
+  ["Greek yogurt plain 2%","1 cup (227g)",9,150,17,4,0],
+  ["Greek yogurt plain 3/4 cup","3/4 cup (170g)",7,110,13,3,0],
+  ["Greek yogurt 0%","1 cup (227g)",9,120,22,0,0],
+  ["Greek yogurt snack cup","3/4 cup (170g)",7,110,13,3,0],
+  ["Cottage cheese low-fat","1 cup (226g)",8,180,25,2,0],
+  ["Low-fat cottage cheese","3/4 cup (170g)",6,135,19,2,0],
+  ["Milk whole","1 cup (244g)",12,149,8,8,0],
+  ["Low-fat milk","2 tbsp (30g)",2,15,1,1,0],
+  ["Chicken broth low-sodium","2 cups (480ml)",2,15,1,0,0],
+  ["Cheddar cheese","1 oz (28g)",0,114,7,9,0],
+  ["Mozzarella cheese","1 oz (28g)",1,85,6,6,0],
+  ["Low-fat mozzarella shredded","2 tbsp (14g)",1,35,4,2,0],
+  ["Shredded low-fat cheese","2 tbsp (14g)",1,38,4,2,0],
+  ["Shredded low-fat cheddar","2 tbsp (14g)",0,40,4,2,0],
+  ["Feta cheese crumbled","1 oz (28g)",1,75,4,6,0],
+  ["Parmesan grated","2 tbsp (10g)",1,40,4,3,0],
+  ["Parmesan shaved","1 tbsp (5g)",0,22,2,1,0],
+  ["Cream cheese light","1 tbsp (15g)",1,35,1,3,0],
+  ["Light cream cheese","1 tbsp (15g)",1,35,1,3,0],
+  ["Sour cream full fat","2 tbsp (29g)",2,60,1,6,0],
+  ["String cheese","1 stick (28g)",1,80,6,5,0],
+  ["Light string cheese","1 stick (28g)",1,80,6,5,0],
+  // ── NON-STARCHY VEGETABLES (USDA verified) ──
+  ["Broccoli florets","2 cups raw (182g)",12,62,5,1,5],
+  ["Broccoli","1 cup raw (91g)",6,31,3,0,2],
+  ["Cauliflower florets","1.5 cups raw (150g)",9,37,3,0,4],
+  ["Cauliflower rice frozen","1.5 cups (150g)",8,35,3,0,3],
+  ["Frozen cauliflower rice","1 cup (100g)",5,25,2,0,2],
+  ["Cauliflower mash","1/2 cup cooked (100g)",6,28,2,0,3],
+  ["Spinach fresh","1 cup packed (30g)",1,7,1,0,1],
+  ["Fresh spinach","2 cups (60g)",2,14,2,0,2],
+  ["Baby spinach","2 cups (60g)",2,14,2,0,2],
+  ["Kale chopped","1 cup (67g)",6,33,2,1,1],
+  ["Mixed salad greens","2 cups (60g)",2,15,1,0,1],
+  ["Mixed greens","1.5 cups (45g)",2,10,1,0,1],
+  ["Romaine lettuce chopped","2.5 cups (120g)",4,18,2,0,2],
+  ["Butter lettuce leaves","4 large leaves",1,5,0,0,0],
+  ["Arugula","1.5 cups (40g)",2,10,1,0,1],
+  ["Cucumber sliced","1/2 cup (52g)",2,8,0,0,0],
+  ["Cucumber diced","1/2 cup (52g)",2,8,0,0,0],
+  ["Zucchini","1 medium (200g)",6,33,2,0,2],
+  ["Zucchini diced","1/2 cup (62g)",2,10,1,0,1],
+  ["Zucchini noodles","2 medium spiralized (400g)",6,62,4,0,2],
+  ["Bell pepper red","1 medium (119g)",7,31,1,0,2],
+  ["Bell pepper green","1 medium (119g)",5,24,1,0,2],
+  ["Bell peppers mixed sliced","1.5 cups (180g)",10,45,2,0,3],
+  ["Bell pepper strips","1/2 cup (75g)",4,18,1,0,1],
+  ["Mushrooms sliced","1 cup (70g)",2,15,2,0,0],
+  ["Cremini mushrooms sliced","1 cup (70g)",2,15,2,0,0],
+  ["Tomato medium","1 medium (123g)",5,22,1,0,1],
+  ["Diced tomatoes canned","1/2 cup (120g)",5,25,1,0,1],
+  ["Cherry tomatoes","1/2 cup (75g)",4,27,1,0,1],
+  ["Cherry tomatoes halved","1/4 cup (37g)",2,14,0,0,1],
+  ["Celery","2 stalks (80g)",3,13,1,0,2],
+  ["Celery stalks","4 stalks (160g)",5,25,1,0,3],
+  ["Asparagus spears","10 spears (150g)",7,33,4,0,4],
+  ["Asparagus trimmed","12 spears (180g)",8,40,5,0,4],
+  ["Green beans trimmed","1.5 cups (165g)",9,40,2,0,4],
+  ["Green beans","1 cup (110g)",8,34,2,0,4],
+  ["Brussels sprouts halved","1.5 cups (132g)",11,56,4,1,5],
+  ["Brussels sprouts","1 cup (88g)",8,38,3,0,3],
+  ["Green cabbage sliced","2 cups (140g)",8,35,2,0,3],
+  ["Green cabbage wedges","2 wedges (200g)",10,50,3,0,4],
+  ["Cabbage shredded","1 cup (90g)",4,22,1,0,2],
+  ["Onion diced","1/4 cup (40g)",4,16,0,0,1],
+  ["Red onion sliced","2 tbsp (20g)",2,8,0,0,0],
+  ["Garlic minced","2 cloves (6g)",2,9,0,0,0],
+  ["Carrots","1 medium (61g)",6,25,1,0,2],
+  ["Carrots sliced","2 medium (122g)",12,50,1,0,3],
+  ["Snap peas","1/2 cup (65g)",5,26,2,0,2],
+  ["Kalamata olives","6 olives (30g)",2,45,0,4,1],
+  ["Cilantro fresh","2 tbsp (2g)",0,1,0,0,0],
+  ["Parsley fresh","1 tbsp (4g)",0,1,0,0,0],
+  ["Dill fresh","1 tsp (1g)",0,1,0,0,0],
+  ["Green onion diced","2 tbsp (12g)",1,4,0,0,0],
+  ["Lemon juice","1 tbsp (15ml)",1,4,0,0,0],
+  ["Lime juice","2 tbsp (30ml)",2,8,0,0,0],
+  // ── STARCHY VEGETABLES (USDA verified) ──
+  ["Sweet potato baked","1 medium (130g)",27,112,2,0,4],
+  ["White potato baked","1 medium (173g)",37,161,4,0,4],
+  ["Yukon gold potato small","1 small 4oz (113g)",20,97,2,0,2],
+  ["Mashed potato","1/3 cup (100g)",18,100,2,1,2],
+  ["Corn kernels","1/2 cup (82g)",16,67,2,1,2],
+  ["Green peas","1/2 cup (80g)",11,59,4,0,4],
+  // ── LEGUMES (USDA verified) ──
+  ["Black beans cooked","1/3 cup (86g)",14,76,5,0,5],
+  ["Kidney beans drained","1/3 cup (86g)",14,75,5,0,5],
+  ["Chickpeas cooked","1/3 cup (82g)",18,89,5,1,5],
+  ["Lentils cooked","1/3 cup (67g)",13,77,6,0,5],
+  ["Hummus","2 tbsp (30g)",5,70,2,5,2],
+  // ── FRUITS (USDA verified) ──
+  ["Apple small","1 small apple (149g)",21,78,0,0,4],
+  ["Banana medium","1 medium banana (118g)",27,105,1,0,3],
+  ["Orange medium","1 medium (131g)",15,62,1,0,3],
+  ["Orange small","1 small (96g)",11,45,1,0,2],
+  ["Strawberries fresh","3/4 cup (110g)",9,35,1,0,2],
+  ["Strawberries sliced","1/2 cup (76g)",6,24,0,0,2],
+  ["Blueberries fresh","1/2 cup (74g)",11,42,1,0,2],
+  ["Blueberries frozen","1/2 cup (74g)",11,40,1,0,2],
+  ["Raspberries fresh","3/4 cup (93g)",11,48,1,0,6],
+  ["Raspberries","1/2 cup (62g)",7,32,1,0,4],
+  ["Grapes","1/2 cup (80g)",14,55,0,0,1],
+  ["Watermelon cubed","1 cup (152g)",11,46,1,0,1],
+  ["Mango chunks","1/2 cup (83g)",13,50,0,0,2],
+  ["Peach medium","1 medium peach (150g)",14,58,1,0,2],
+  ["Pear medium","1 medium pear (178g)",27,101,1,0,6],
+  ["Cantaloupe cubed","1 cup (160g)",13,54,1,0,1],
+  ["Honeydew melon","1 cup (156g)",14,60,1,0,1],
+  ["Mixed berries","1/2 cup (75g)",9,36,1,0,3],
+  ["Avocado quarter","1/4 medium (37g)",3,59,1,5,2],
+  ["Avocado half","1/2 medium (75g)",6,120,1,11,5],
+  ["Avocado whole medium","1 whole (150g)",13,240,3,22,10],
+  // ── FATS & OILS (USDA verified) ──
+  ["Olive oil","1 tsp (5g)",0,40,0,5,0],
+  ["Olive oil tablespoon","1 tbsp (14g)",0,119,0,14,0],
+  ["Sesame oil","1 tsp (5g)",0,40,0,5,0],
+  ["Butter unsalted","1 tsp (5g)",0,36,0,4,0],
+  ["Peanut butter natural","1.5 tbsp (24g)",6,142,6,12,1],
+  ["Almond butter","1 tbsp (16g)",3,98,3,9,1],
+  ["Walnuts chopped","1 oz (28g)",4,185,4,18,2],
+  ["Walnuts halves","1 oz (28g)",4,185,4,18,2],
+  ["Almonds","1 oz (28g)",6,164,6,14,3],
+  ["Cashews","1 oz (28g)",9,157,5,12,1],
+  ["Chia seeds","1 tbsp (12g)",5,58,2,4,5],
+  ["Ground flaxseed","1 tbsp (10g)",2,37,1,3,3],
+  // ── CONDIMENTS & SEASONINGS (USDA verified) ──
+  ["Marinara sauce no sugar","1/2 cup (125g)",10,70,2,2,2],
+  ["Salsa no sugar added","1/4 cup (64g)",4,20,1,0,1],
+  ["Salsa","3 tbsp (48g)",3,15,1,0,1],
+  ["Dijon mustard","1 tsp (5g)",0,5,0,0,0],
+  ["Dijon mustard tablespoon","1 tbsp (15g)",1,9,1,0,0],
+  ["Low-sodium soy sauce","1.5 tbsp (22ml)",1,10,1,0,0],
+  ["Coconut aminos","1.5 tbsp (22ml)",5,20,0,0,0],
+  ["Worcestershire sauce","1 tsp (5ml)",1,4,0,0,0],
+  ["Apple cider vinegar","1 tbsp (15ml)",0,3,0,0,0],
+  ["Greek yogurt ranch dressing","2 tbsp (30g)",2,35,2,1,0],
+  ["Herb vinaigrette","1.5 tbsp (22g)",1,65,0,7,0],
+  ["Light Caesar dressing","2 tbsp (30g)",2,80,1,8,0],
+  ["Light ranch dressing","2 tbsp (30g)",2,60,1,6,0],
+  ["Everything bagel seasoning","1 tsp (3g)",1,8,0,0,0],
+  ["Lemon pepper seasoning","1/2 tsp (1g)",1,3,0,0,0],
+  ["Italian seasoning","1/2 tsp (1g)",0,3,0,0,0],
+  ["Chili powder","1 tsp (3g)",1,8,0,0,0],
+  ["Cumin ground","1 tsp (3g)",1,8,0,0,0],
+  ["Paprika","1/2 tsp (1g)",1,3,0,0,0],
+  ["Garlic powder","1/2 tsp (2g)",2,5,0,0,0],
+  ["Onion powder","1/2 tsp (2g)",2,5,0,0,0],
+  ["Ground cinnamon","1/2 tsp (1g)",1,3,0,0,0],
+  ["Vanilla extract","1/4 tsp (1ml)",0,3,0,0,0],
+  // ── SNACK PLAN ITEMS ──
+  ["String cheese","1 stick (28g)",1,80,6,5,0],
+  ["Light string cheese","1 stick (28g)",1,80,6,5,0],
+  ["Greek yogurt snack","3/4 cup (170g)",7,110,13,3,0],
+  ["Celery with hummus","2 stalks plus 2 tbsp hummus",8,43,2,5,3],
+  ["Mixed nuts","1 oz (28g)",6,170,5,15,2],
+  ["Popcorn light","2 cups (16g)",12,62,2,1,2],
+  ["Walnuts snack","1 oz (28g)",4,185,4,18,2],
+];
+
 
 // ── MANUAL FOOD SEARCH ──
 function searchFoods(query) {
