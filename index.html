@@ -664,18 +664,16 @@
     <input type="text" id="photoLabel" placeholder="Week 1 - Front, Side, etc.">
 
     <div class="photo-btn-row">
-      <button class="photo-btn photo-btn-camera" onclick="openPhotoCamera()">
+      <button class="photo-btn photo-btn-camera" onclick="openPhotoCamera('camera')">
         &#128247; Take Photo
       </button>
-      <button class="photo-btn photo-btn-library" onclick="document.getElementById('photoLibraryInput').click()">
+      <button class="photo-btn photo-btn-library" onclick="openPhotoCamera('library')">
         &#128444; Upload from Library
       </button>
     </div>
 
-    <!-- Camera input — no capture attribute so it opens the chooser on iOS -->
-    <input type="file" id="photoCameraInput" accept="image/*" capture="environment" style="display:none" onchange="handlePhotoSelected(event)">
-    <!-- Library input — no capture so it goes straight to photo library -->
-    <input type="file" id="photoLibraryInput" accept="image/*" style="display:none" onchange="handlePhotoSelected(event)">
+    <!-- Single shared input — we swap capture attribute via JS before clicking -->
+    <input type="file" id="photoFileInput" accept="image/*" style="display:none" onchange="handlePhotoSelected(event)">
 
     <!-- Timer section -->
     <div class="timer-wrap" id="photoTimerWrap">
@@ -1284,9 +1282,21 @@ function renderWeightHistory() {
 var pendingPhotoData = null;
 var photoTimerInterval = null;
 var photoTimerSeconds = 0;
+var photoHandlerLocked = false; // Prevent duplicate onchange firings
 
-function openPhotoCamera() {
-  // Show timer option first
+function openPhotoCamera(mode) {
+  if (mode === 'library') {
+    // Library mode — no capture attribute
+    var inp = document.getElementById('photoFileInput');
+    inp.removeAttribute('capture');
+    inp.value = '';
+    inp.click();
+    return;
+  }
+  // Camera mode — show timer options first
+  var inp = document.getElementById('photoFileInput');
+  inp.setAttribute('capture', 'environment');
+  inp.value = '';
   document.getElementById('timerOptions').style.display = 'block';
   document.getElementById('photoPreviewWrap').style.display = 'none';
 }
@@ -1313,9 +1323,11 @@ function startPhotoTimer(seconds) {
       document.getElementById('photoTimerWrap').style.display = 'none';
       document.getElementById('timerCountdown').style.color = 'var(--accent)';
       document.getElementById('timerCountdown').style.textShadow = '0 0 30px rgba(74,158,255,0.5)';
-      // Open camera after timer
-      document.getElementById('photoCameraInput').value = '';
-      document.getElementById('photoCameraInput').click();
+      // Reset lock and open camera
+      photoHandlerLocked = false;
+      var inp = document.getElementById('photoFileInput');
+      inp.value = '';
+      inp.click();
     }
   }, 1000);
 }
@@ -1326,17 +1338,26 @@ function cancelPhotoTimer() {
     photoTimerInterval = null;
   }
   document.getElementById('photoTimerWrap').style.display = 'none';
+  document.getElementById('timerOptions').style.display = 'none';
   document.getElementById('timerCountdown').style.color = 'var(--accent)';
   document.getElementById('timerCountdown').style.textShadow = '0 0 30px rgba(74,158,255,0.5)';
 }
 
 function handlePhotoSelected(event) {
-  // Guard against duplicate firings — only process first file
+  // Hard lock — iOS sometimes fires onchange 2-4 times for one photo selection
+  if (photoHandlerLocked) {
+    event.target.value = '';
+    return;
+  }
+
   var file = event.target.files && event.target.files[0];
   if (!file) return;
 
-  // Reset the input immediately to prevent duplicate events
-  var inputId = event.target.id;
+  // Lock immediately — unlocked after preview loads or on clearPhotoPreview
+  photoHandlerLocked = true;
+
+  // Clear the input right away to prevent any further firings
+  event.target.value = '';
 
   var reader = new FileReader();
   reader.onload = function(e) {
@@ -1345,66 +1366,78 @@ function handlePhotoSelected(event) {
     document.getElementById('photoPreviewWrap').style.display = 'block';
     document.getElementById('timerOptions').style.display = 'none';
     document.getElementById('photoTimerWrap').style.display = 'none';
-    // Scroll preview into view
     document.getElementById('photoPreviewWrap').scrollIntoView({behavior:'smooth', block:'nearest'});
   };
+  reader.onerror = function() {
+    photoHandlerLocked = false;
+    toast('Could not load photo. Try again.');
+  };
   reader.readAsDataURL(file);
-
-  // Reset input value after a short delay so it can be used again
-  setTimeout(function() {
-    document.getElementById(inputId).value = '';
-  }, 500);
 }
 
 function clearPhotoPreview() {
   pendingPhotoData = null;
+  photoHandlerLocked = false;
   document.getElementById('photoPreview').src = '';
   document.getElementById('photoPreviewWrap').style.display = 'none';
-  document.getElementById('photoCameraInput').value = '';
-  document.getElementById('photoLibraryInput').value = '';
+  document.getElementById('photoFileInput').value = '';
 }
 
 function savePhoto() {
   if (!pendingPhotoData) { toast('Please choose a photo first'); return; }
+
   var date = document.getElementById('photoDate').value || todayStr();
   var weight = parseFloat(document.getElementById('photoWeight').value) || null;
   var label = document.getElementById('photoLabel').value || 'Progress Photo';
 
-  // Use a stable unique ID for each photo to fix delete index issues
-  var photoId = Date.now() + '_' + Math.random().toString(36).slice(2,8);
+  // Unique stable ID for reliable delete
+  var photoId = 'ph_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7);
 
-  state.photos.push({ id: photoId, date: date, weight: weight, label: label, data: pendingPhotoData });
+  state.photos.push({
+    id: photoId,
+    date: date,
+    weight: weight,
+    label: label,
+    data: pendingPhotoData
+  });
   state.photos.sort(function(a, b) { return a.date.localeCompare(b.date); });
   saveState();
 
-  // Reset form
+  // Reset everything
   pendingPhotoData = null;
+  photoHandlerLocked = false;
   document.getElementById('photoPreviewWrap').style.display = 'none';
+  document.getElementById('photoPreview').src = '';
   document.getElementById('photoDate').value = '';
   document.getElementById('photoWeight').value = '';
   document.getElementById('photoLabel').value = '';
-  document.getElementById('photoCameraInput').value = '';
-  document.getElementById('photoLibraryInput').value = '';
+  document.getElementById('photoFileInput').value = '';
 
   renderPhotos();
   toast('Photo saved!');
 }
 
 function deletePhoto(photoId) {
-  // Use stable ID lookup instead of fragile array index
-  var idx = state.photos.findIndex(function(p) { return p.id === photoId; });
+  var idx = -1;
+  // Look up by stable string ID first
+  for (var i = 0; i < state.photos.length; i++) {
+    if (state.photos[i].id === photoId) { idx = i; break; }
+  }
+  // Fallback: treat as numeric index for old photos without IDs
   if (idx === -1) {
-    // Fallback: try treating photoId as numeric index for old photos without IDs
     var numIdx = parseInt(photoId);
     if (!isNaN(numIdx) && numIdx >= 0 && numIdx < state.photos.length) {
-      state.photos.splice(numIdx, 1);
+      idx = numIdx;
     }
-  } else {
-    state.photos.splice(idx, 1);
   }
-  saveState();
-  renderPhotos();
-  toast('Photo removed');
+  if (idx !== -1) {
+    state.photos.splice(idx, 1);
+    saveState();
+    renderPhotos();
+    toast('Photo removed');
+  } else {
+    toast('Could not find photo to remove');
+  }
 }
 
 function renderPhotos() {
@@ -1418,18 +1451,17 @@ function renderPhotos() {
   }
   empty.style.display = 'none';
 
-  // Render newest first — use stable photo ID for delete
+  // Newest first — use stable ID for delete button
   var reversed = state.photos.slice().reverse();
   gallery.innerHTML = reversed.map(function(p) {
     var wStr = p.weight ? p.weight + ' lbs' : '';
-    // Use stable ID if available, otherwise fall back to original index
-    var deleteKey = p.id ? "'" + p.id + "'" : String(state.photos.indexOf(p));
+    var deleteKey = p.id ? JSON.stringify(p.id) : String(state.photos.indexOf(p));
     return '<div class="photo-card">' +
       '<img src="' + p.data + '" alt="' + p.label + '" loading="lazy">' +
       '<div class="photo-meta">' +
         '<div class="photo-date">' + fmtDate(p.date) + '</div>' +
         '<div style="font-size:11px;color:var(--silver-dim);">' + p.label + '</div>' +
-        (p.weight ? '<div class="photo-weight">' + wStr + '</div>' : '') +
+        (wStr ? '<div class="photo-weight">' + wStr + '</div>' : '') +
       '</div>' +
       '<div class="photo-actions">' +
         '<button class="btn-sm btn-danger" onclick="deletePhoto(' + deleteKey + ')" style="font-size:11px;padding:6px 12px;">Remove</button>' +
