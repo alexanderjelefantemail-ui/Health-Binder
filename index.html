@@ -2502,6 +2502,7 @@ var modelLoading = false;
 // Current scan state
 var scanPhoto = null;
 var scanFoods = [];
+var carbPhotoLocked = false; // Prevent duplicate onchange firings
 
 // ── LOAD MOBILENET MODEL ──
 async function loadModel() {
@@ -2580,8 +2581,14 @@ var IMAGENET_FOOD_LABELS = {
 
 // ── HANDLE PHOTO ──
 function handleCarbPhoto(event) {
-  var file = event.target.files[0];
+  // Lock prevents iOS firing onchange multiple times for one photo
+  if (carbPhotoLocked) { event.target.value = ''; return; }
+  var file = event.target.files && event.target.files[0];
   if (!file) return;
+
+  carbPhotoLocked = true;
+  event.target.value = ''; // Clear immediately to block further firings
+
   var reader = new FileReader();
   reader.onload = function(e) {
     scanPhoto = e.target.result;
@@ -2592,9 +2599,11 @@ function handleCarbPhoto(event) {
     document.getElementById('scanPhotoLabel').textContent = 'Photo saved. Tap again to change.';
     document.getElementById('scanPhotoLabel').style.color = 'var(--success)';
     document.getElementById('recognitionResults').style.display = 'none';
-
-    // Run recognition
     runPhotoRecognition(preview);
+  };
+  reader.onerror = function() {
+    carbPhotoLocked = false;
+    toast('Could not load photo. Try again.');
   };
   reader.readAsDataURL(file);
 }
@@ -3025,22 +3034,45 @@ function saveScanResult() {
   var totCarbs = 0, totCal = 0, totPro = 0, totFat = 0;
   scanFoods.forEach(function(f) {
     totCarbs += Math.round(f.carbs * f.mult);
-    totCal += Math.round(f.cal * f.mult);
-    totPro += Math.round(f.pro * f.mult);
-    totFat += Math.round(f.fat * f.mult);
+    totCal   += Math.round(f.cal   * f.mult);
+    totPro   += Math.round(f.pro   * f.mult);
+    totFat   += Math.round(f.fat   * f.mult);
   });
+  // Unique stable ID so delete works reliably
+  var scanId = 'sc_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7);
   state.carbScans.unshift({
+    id: scanId,
     date: todayStr(),
     time: new Date().toLocaleTimeString('en-US', {hour:'2-digit', minute:'2-digit'}),
     image: scanPhoto,
     foods: scanFoods.map(function(f) { return {name:f.name, serving:f.serving, mult:f.mult, carbs:Math.round(f.carbs*f.mult)}; }),
     totals: {carbs:totCarbs, cal:totCal, pro:totPro, fat:totFat}
   });
-  if (state.carbScans.length > 30) state.carbScans = state.carbScans.slice(0, 30);
+  if (state.carbScans.length > 50) state.carbScans = state.carbScans.slice(0, 50);
   saveState();
   renderCarbScanHistory();
   toast('Meal saved!');
   resetCarbScan();
+}
+
+function deleteScanResult(scanId) {
+  var idx = -1;
+  for (var i = 0; i < state.carbScans.length; i++) {
+    if (state.carbScans[i].id === scanId) { idx = i; break; }
+  }
+  // Fallback: numeric index for old scans without IDs
+  if (idx === -1) {
+    var numIdx = parseInt(scanId);
+    if (!isNaN(numIdx) && numIdx >= 0 && numIdx < state.carbScans.length) {
+      idx = numIdx;
+    }
+  }
+  if (idx !== -1) {
+    state.carbScans.splice(idx, 1);
+    saveState();
+    renderCarbScanHistory();
+    toast('Meal removed');
+  }
 }
 
 function addManualFood() {
@@ -3081,6 +3113,7 @@ function addManualFood() {
 function resetCarbScan() {
   scanPhoto = null;
   scanFoods = [];
+  carbPhotoLocked = false;
   document.getElementById('carbScanInput').value = '';
   var preview = document.getElementById('carbScanPreview');
   preview.style.display = 'none';
@@ -3105,23 +3138,35 @@ function renderCarbScanHistory() {
     return;
   }
   var html = '';
-  state.carbScans.forEach(function(scan) {
+  state.carbScans.forEach(function(scan, idx) {
+    // Use stable string ID when available, numeric index as fallback
+    var deleteKey = scan.id ? JSON.stringify(scan.id) : String(idx);
+
     html += '<div style="border-bottom:1px solid var(--border);padding:12px 0;">';
     html += '<div style="display:flex;gap:10px;align-items:flex-start;">';
+
+    // Thumbnail
     if (scan.image) {
       html += '<img src="' + scan.image + '" style="width:56px;height:56px;border-radius:8px;object-fit:cover;flex-shrink:0;">';
     } else {
       html += '<div style="width:56px;height:56px;border-radius:8px;background:var(--navy-light);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;">&#127869;</div>';
     }
-    html += '<div style="flex:1;">';
+
+    // Details
+    html += '<div style="flex:1;min-width:0;">';
     html += '<div style="font-size:10px;color:var(--silver-dim);letter-spacing:1px;">' + fmtDate(scan.date) + ' at ' + scan.time + '</div>';
-    html += '<div style="font-size:12px;color:var(--silver-bright);margin:3px 0;">';
-    scan.foods.forEach(function(f) { html += f.name + (f.mult !== 1 ? ' x'+f.mult : '') + '&nbsp; '; });
+    html += '<div style="font-size:12px;color:var(--silver-bright);margin:3px 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">';
+    scan.foods.forEach(function(f) { html += f.name + (f.mult !== 1 ? ' x' + f.mult : '') + '  '; });
     html += '</div>';
-    html += '<div style="display:flex;gap:12px;margin-top:4px;">';
+    html += '<div style="display:flex;align-items:center;gap:12px;margin-top:4px;flex-wrap:wrap;">';
     html += '<span style="font-family:Bebas Neue,sans-serif;font-size:20px;color:var(--gold);">' + scan.totals.carbs + 'g <span style="font-size:10px;font-family:Montserrat,sans-serif;color:var(--silver-dim);">carbs</span></span>';
-    html += '<span style="font-size:12px;color:var(--silver-dim);padding-top:4px;">' + scan.totals.cal + ' cal</span>';
-    html += '</div></div></div></div>';
+    html += '<span style="font-size:12px;color:var(--silver-dim);">' + scan.totals.cal + ' cal</span>';
+    html += '</div></div>';
+
+    // Delete button — right aligned
+    html += '<button onclick="deleteScanResult(' + deleteKey + ')" style="flex-shrink:0;align-self:center;background:rgba(255,74,106,0.15);border:1px solid rgba(255,74,106,0.35);color:var(--danger);border-radius:6px;padding:6px 10px;font-size:11px;font-weight:700;cursor:pointer;font-family:Montserrat,sans-serif;letter-spacing:0.5px;">Remove</button>';
+
+    html += '</div></div>';
   });
   container.innerHTML = html;
 }
