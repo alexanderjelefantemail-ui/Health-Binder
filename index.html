@@ -241,6 +241,22 @@
   .check-btn.checked { background: var(--success); border-color: var(--success); color: var(--navy); box-shadow: 0 0 8px rgba(74,255,176,0.4); }
 
   /* ── GLUCOSE LOG ── */
+  .gluc-day-card { background:var(--card);border:1px solid var(--border);border-radius:12px;margin-bottom:14px;overflow:hidden; }
+  .gluc-day-header { background:linear-gradient(90deg,rgba(74,158,255,0.12),transparent);padding:10px 14px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border); }
+  .gluc-day-name { font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:2px;color:var(--accent); }
+  .gluc-day-body { padding:12px 14px; }
+  .gluc-section-label { font-size:9px;font-weight:700;letter-spacing:1.5px;color:var(--gold);text-transform:uppercase;margin:12px 0 6px; }
+  .gluc-row { display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px; }
+  .gluc-row-3 { display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:8px; }
+  .gluc-field label { font-size:10px;color:var(--silver-dim);letter-spacing:0.5px;display:block;margin-bottom:4px; }
+  .gluc-field input { width:100%;background:rgba(10,22,40,0.8);border:1px solid var(--border);border-radius:6px;color:var(--white);font-family:'Montserrat',sans-serif;font-size:13px;padding:8px 10px;outline:none; }
+  .gluc-field input:focus { border-color:var(--accent); }
+  .hypo-row { display:flex;gap:10px;flex-wrap:wrap;margin-bottom:4px; }
+  .hypo-check { display:flex;align-items:center;gap:6px;cursor:pointer;padding:7px 12px;background:rgba(255,74,106,0.07);border:1px solid rgba(255,74,106,0.2);border-radius:6px;font-size:12px;color:var(--silver-bright); }
+  .hypo-check input[type=checkbox] { width:16px;height:16px;accent-color:var(--danger);cursor:pointer; }
+  .hypo-check.checked { background:rgba(255,74,106,0.18);border-color:var(--danger); }
+  .gluc-chart-wrap { margin-top:14px;overflow-x:auto; }
+  .gluc-chart-canvas { width:100%;height:180px;display:block; }
   .glucose-row { border-bottom: 1px solid var(--border); padding: 10px 0; }
   .glucose-row:last-child { border-bottom: none; }
   .glucose-day-header { font-family: 'Bebas Neue', sans-serif; font-size: 14px; letter-spacing: 2px; color: var(--accent); margin-bottom: 8px; }
@@ -659,21 +675,46 @@
 
 <!-- ══════════════════════════════════ GLUCOSE ══════════════════════════════════ -->
 <div class="page" id="page-glucose">
-  <div class="card">
-    <div class="card-title">Diabetes &amp; Glucose Log</div>
-    <div id="glucoseWeekLabel" class="current-week-info"></div>
-    <div id="glucoseGrid"></div>
-    <button class="btn btn-primary" onclick="saveGlucose()">Save Glucose Log</button>
+
+  <div class="card" style="background:linear-gradient(135deg,rgba(26,48,96,0.9),rgba(10,22,40,0.9));border-color:rgba(74,158,255,0.3);">
+    <div style="font-size:11px;font-weight:700;letter-spacing:2px;color:var(--gold);margin-bottom:5px;text-transform:uppercase;">Glucose &amp; Diabetes Log</div>
+    <div style="font-size:12px;color:var(--silver-bright);line-height:1.6;">Log wake-up, pre-meal, and bedtime glucose readings. Mark any hypoglycemic events. All data charts automatically.</div>
   </div>
-  <div class="card">
-    <div class="card-title">Bedtime Snack Guide</div>
-    <div style="font-size:13px;color:var(--silver-bright);line-height:1.8;">
-      🟢 <strong>High before bed:</strong> 0–5g carbs<br>
-      🟡 <strong>Trending down:</strong> 5–10g carbs + protein<br>
-      🔵 <strong>Routine bedtime:</strong> 10–15g carbs + protein<br>
-      🔴 <strong>Low glucose:</strong> Follow your diabetes treatment plan
+
+  <div class="card" style="padding:12px 14px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;">
+      <div id="glucoseWeekLabel" style="font-size:12px;color:var(--accent);font-weight:600;"></div>
+      <button class="btn-sm" onclick="saveGlucose()" style="background:var(--accent);color:white;border:none;padding:8px 16px;font-size:11px;">Save All</button>
     </div>
   </div>
+
+  <div id="glucoseGrid"></div>
+
+  <div class="card">
+    <div class="card-title">Weekly Glucose Chart</div>
+    <div style="font-size:11px;color:var(--silver-dim);margin-bottom:8px;">Wake-up, Breakfast, Lunch, Dinner &amp; Bedtime readings</div>
+    <div class="gluc-chart-wrap">
+      <canvas id="glucoseChart" class="gluc-chart-canvas"></canvas>
+    </div>
+    <div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:10px;font-size:10px;">
+      <span style="color:#4a9eff;">&#9632; Wake-up</span>
+      <span style="color:#4affb0;">&#9632; Breakfast pre</span>
+      <span style="color:#f0c040;">&#9632; Lunch pre</span>
+      <span style="color:#ff9a4a;">&#9632; Dinner pre</span>
+      <span style="color:#c040ff;">&#9632; Bedtime</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Bedtime Snack Guide</div>
+    <div style="font-size:13px;color:var(--silver-bright);line-height:1.9;">
+      <span style="color:#4affb0;">&#9632;</span> <strong>Glucose high before bed:</strong> 0-5g carbs<br>
+      <span style="color:#f0c040;">&#9632;</span> <strong>Trending down:</strong> 5-10g carbs + protein<br>
+      <span style="color:#4a9eff;">&#9632;</span> <strong>Routine bedtime:</strong> 10-15g carbs + protein<br>
+      <span style="color:#ff4a6a;">&#9632;</span> <strong>Low glucose:</strong> Follow your diabetes care plan
+    </div>
+  </div>
+
   <div class="page-footer"></div>
 </div>
 
@@ -827,6 +868,32 @@
     <div style="font-size:11px;color:var(--silver-dim);margin-bottom:12px;">Tap a result to add it. Adjust servings with + and - buttons.</div>
     <div id="noFoodsMsg" style="font-size:12px;color:var(--silver-dim);text-align:center;padding:12px 0;">No foods added yet.</div>
     <div id="addedFoodsList"></div>
+
+    <div style="margin-top:14px;border-top:1px solid var(--border);padding-top:14px;">
+      <div style="font-size:11px;font-weight:700;letter-spacing:1px;color:var(--gold);text-transform:uppercase;margin-bottom:10px;">Add Food Manually</div>
+      <div style="font-size:11px;color:var(--silver-dim);margin-bottom:10px;">Can not find a food? Enter it directly below.</div>
+      <input type="text" id="manualFoodName" placeholder="Food name (e.g. Homemade chili)" style="margin-bottom:8px;">
+      <input type="text" id="manualServing" placeholder="Serving size (e.g. 1 cup)" style="margin-bottom:8px;">
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;margin-bottom:10px;">
+        <div>
+          <label style="font-size:10px;color:var(--gold);">Carbs (g)</label>
+          <input type="number" id="manualCarbs" placeholder="0" min="0" max="300" step="1">
+        </div>
+        <div>
+          <label style="font-size:10px;color:var(--silver-dim);">Cal</label>
+          <input type="number" id="manualCal" placeholder="0" min="0" max="2000" step="1">
+        </div>
+        <div>
+          <label style="font-size:10px;color:var(--silver-dim);">Protein (g)</label>
+          <input type="number" id="manualPro" placeholder="0" min="0" max="200" step="1">
+        </div>
+        <div>
+          <label style="font-size:10px;color:var(--silver-dim);">Fat (g)</label>
+          <input type="number" id="manualFat" placeholder="0" min="0" max="200" step="1">
+        </div>
+      </div>
+      <button class="btn btn-primary" style="margin-top:0;" onclick="addManualFood()">Add This Food</button>
+    </div>
   </div>
 
   <!-- TOTALS -->
@@ -1044,7 +1111,7 @@ function showPage(name) {
   if (name === 'dashboard') renderDashboard();
   if (name === 'weight') renderWeightHistory();
   if (name === 'habits') renderHabits();
-  if (name === 'glucose') renderGlucose();
+  if (name === 'glucose') { renderGlucose(); }
   if (name === 'photos') renderPhotos();
   if (name === 'reflection') renderReflections();
   if (name === 'carbscan') { renderCarbScanHistory(); initCarbScanner(); }
@@ -1246,42 +1313,235 @@ function showHabitWeek(week) {
 
 // ═══════════════════════════ GLUCOSE ═══════════════════════════
 function renderGlucose() {
-  const week = weekStart(todayStr());
+  var week = weekStart(todayStr());
   document.getElementById('glucoseWeekLabel').textContent = 'Week of ' + fmtDate(week);
   if (!state.glucose[week]) state.glucose[week] = {};
-  const gData = state.glucose[week];
-  const fields = [
-    { key: 'bcarbs', label: 'Breakfast Carbs (g)', type: 'number' },
-    { key: 'lcarbs', label: 'Lunch Carbs (g)', type: 'number' },
-    { key: 'dcarbs', label: 'Dinner Carbs (g)', type: 'number' },
-    { key: 'scarbs', label: 'Snacks Carbs (g)', type: 'number' },
-    { key: 'pregluc', label: 'Pre-Meal Glucose', type: 'text' },
-    { key: 'postgluc', label: 'Post-Meal Glucose', type: 'text' },
-    { key: 'insulin', label: 'Insulin Notes', type: 'text' },
-    { key: 'activity', label: 'Activity', type: 'text' }
-  ];
-  let html = '';
-  DAYS.forEach((day, di) => {
-    const prefix = week + '_' + di;
-    html += '<div class="glucose-row"><div class="glucose-day-header">' + day + '</div><div class="glucose-inputs">';
-    fields.forEach(f => {
-      const k = prefix + '_' + f.key;
-      const val = gData[k] || '';
-      html += '<div><label>' + f.label + '</label><input type="' + f.type + '" id="g_' + k + '" value="' + val + '" placeholder="--"' + (f.type==='number'?' step="1"':'') + '></div>';
+  var gData = state.glucose[week];
+  var html = '';
+
+  DAYS.forEach(function(day, di) {
+    var p = week + '_' + di; // prefix
+    var stored = function(key) { return gData[p + '_' + key] || ''; };
+    var checkedClass = function(key) { return gData[p + '_' + key] ? 'checked' : ''; };
+
+    html += '<div class="gluc-day-card">';
+    html += '<div class="gluc-day-header">';
+    html += '<span class="gluc-day-name">' + day + '</span>';
+    // Hypo count badge
+    var hypoCount = (gData[p+'_hypo1']?1:0)+(gData[p+'_hypo2']?1:0)+(gData[p+'_hypo3']?1:0);
+    if (hypoCount > 0) {
+      html += '<span style="background:var(--danger);color:white;font-size:10px;font-weight:700;padding:3px 8px;border-radius:10px;letter-spacing:0.5px;">' + hypoCount + ' HYPO EVENT' + (hypoCount>1?'S':'') + '</span>';
+    }
+    html += '</div>';
+    html += '<div class="gluc-day-body">';
+
+    // ── READINGS ──
+    html += '<div class="gluc-section-label">Glucose Readings (mg/dL)</div>';
+    html += '<div class="gluc-row-3">';
+    html += '<div class="gluc-field"><label>Wake-Up</label><input type="number" id="g_'+p+'_wakeup" value="'+stored('wakeup')+'" placeholder="--" min="40" max="400"></div>';
+    html += '<div class="gluc-field"><label>Pre-Breakfast</label><input type="number" id="g_'+p+'_prebfast" value="'+stored('prebfast')+'" placeholder="--" min="40" max="400"></div>';
+    html += '<div class="gluc-field"><label>Pre-Lunch</label><input type="number" id="g_'+p+'_prelunch" value="'+stored('prelunch')+'" placeholder="--" min="40" max="400"></div>';
+    html += '</div>';
+    html += '<div class="gluc-row">';
+    html += '<div class="gluc-field"><label>Pre-Dinner</label><input type="number" id="g_'+p+'_predinner" value="'+stored('predinner')+'" placeholder="--" min="40" max="400"></div>';
+    html += '<div class="gluc-field"><label>Bedtime</label><input type="number" id="g_'+p+'_bedtime" value="'+stored('bedtime')+'" placeholder="--" min="40" max="400"></div>';
+    html += '</div>';
+
+    // ── CARBS ──
+    html += '<div class="gluc-section-label">Carbs Eaten (g)</div>';
+    html += '<div class="gluc-row-3">';
+    html += '<div class="gluc-field"><label>Breakfast</label><input type="number" id="g_'+p+'_bcarbs" value="'+stored('bcarbs')+'" placeholder="--" min="0" max="200"></div>';
+    html += '<div class="gluc-field"><label>Lunch</label><input type="number" id="g_'+p+'_lcarbs" value="'+stored('lcarbs')+'" placeholder="--" min="0" max="200"></div>';
+    html += '<div class="gluc-field"><label>Dinner</label><input type="number" id="g_'+p+'_dcarbs" value="'+stored('dcarbs')+'" placeholder="--" min="0" max="200"></div>';
+    html += '</div>';
+    html += '<div class="gluc-row">';
+    html += '<div class="gluc-field"><label>Snacks</label><input type="number" id="g_'+p+'_scarbs" value="'+stored('scarbs')+'" placeholder="--" min="0" max="200"></div>';
+    html += '<div class="gluc-field"><label>Insulin Notes</label><input type="text" id="g_'+p+'_insulin" value="'+stored('insulin')+'" placeholder="e.g. 4u pre-lunch"></div>';
+    html += '</div>';
+
+    // ── HYPOGLYCEMIC EVENTS ──
+    html += '<div class="gluc-section-label">Hypoglycemic Events (check all that occurred)</div>';
+    html += '<div class="hypo-row">';
+    ['hypo1','hypo2','hypo3'].forEach(function(hk, hi) {
+      var isChecked = !!gData[p + '_' + hk];
+      html += '<label class="hypo-check ' + (isChecked?'checked':'') + '" id="lbl_'+p+'_'+hk+'">';
+      html += '<input type="checkbox" id="g_'+p+'_'+hk+'" '+(isChecked?'checked':'')+' onchange="onHypoChange(\''+p+'\',\''+hk+'\',this)">';
+      html += 'Event ' + (hi+1);
+      html += '</label>';
     });
-    html += '</div></div>';
+    html += '</div>';
+
+    // ── NOTES ──
+    html += '<div class="gluc-section-label">Activity &amp; Notes</div>';
+    html += '<div class="gluc-field"><input type="text" id="g_'+p+'_activity" value="'+stored('activity')+'" placeholder="e.g. 20 min walk, unusual stress, sick day..."></div>';
+
+    html += '</div></div>'; // close body and card
   });
+
   document.getElementById('glucoseGrid').innerHTML = html;
+  renderGlucoseChart(week, state.glucose[week]);
+}
+
+function onHypoChange(prefix, key, checkbox) {
+  var week = weekStart(todayStr());
+  if (!state.glucose[week]) state.glucose[week] = {};
+  state.glucose[week][prefix + '_' + key] = checkbox.checked;
+  // Update label style
+  var lbl = document.getElementById('lbl_' + prefix + '_' + key);
+  if (lbl) {
+    if (checkbox.checked) lbl.classList.add('checked');
+    else lbl.classList.remove('checked');
+  }
+  // Update badge
+  var hypoCount = 0;
+  ['hypo1','hypo2','hypo3'].forEach(function(hk) {
+    if (state.glucose[week][prefix + '_' + hk]) hypoCount++;
+  });
+  saveState();
 }
 
 function saveGlucose() {
-  const week = weekStart(todayStr());
+  var week = weekStart(todayStr());
   if (!state.glucose[week]) state.glucose[week] = {};
-  document.querySelectorAll('#glucoseGrid input').forEach(inp => {
-    if (inp.id.startsWith('g_')) state.glucose[week][inp.id.slice(2)] = inp.value;
+  // Save all text/number inputs
+  document.querySelectorAll('#glucoseGrid input[type=number], #glucoseGrid input[type=text]').forEach(function(inp) {
+    if (inp.id.startsWith('g_')) {
+      state.glucose[week][inp.id.slice(2)] = inp.value;
+    }
+  });
+  // Save checkboxes
+  document.querySelectorAll('#glucoseGrid input[type=checkbox]').forEach(function(cb) {
+    if (cb.id.startsWith('g_')) {
+      state.glucose[week][cb.id.slice(2)] = cb.checked;
+    }
   });
   saveState();
+  renderGlucoseChart(week, state.glucose[week]);
   toast('Glucose log saved!');
+}
+
+function renderGlucoseChart(week, gData) {
+  var canvas = document.getElementById('glucoseChart');
+  if (!canvas) return;
+  var ctx = canvas.getContext('2d');
+
+  // Set canvas size
+  var W = canvas.parentElement.clientWidth - 28;
+  var H = 180;
+  canvas.width = W;
+  canvas.height = H;
+  ctx.clearRect(0, 0, W, H);
+
+  // Collect data for each day
+  var labels = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  var datasets = {
+    wakeup:   {color:'#4a9eff', values:[]},
+    prebfast: {color:'#4affb0', values:[]},
+    prelunch: {color:'#f0c040', values:[]},
+    predinner:{color:'#ff9a4a', values:[]},
+    bedtime:  {color:'#c040ff', values:[]}
+  };
+
+  var allValues = [];
+  DAYS.forEach(function(day, di) {
+    var p = week + '_' + di;
+    Object.keys(datasets).forEach(function(key) {
+      var val = parseFloat(gData[p + '_' + key]) || null;
+      datasets[key].values.push(val);
+      if (val) allValues.push(val);
+    });
+  });
+
+  if (allValues.length === 0) {
+    ctx.fillStyle = 'rgba(192,207,224,0.3)';
+    ctx.font = '12px Montserrat, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('Log glucose readings to see chart', W/2, H/2);
+    return;
+  }
+
+  var minV = Math.min(70, Math.min.apply(null, allValues) - 10);
+  var maxV = Math.max(250, Math.max.apply(null, allValues) + 20);
+  var padL = 36, padR = 10, padT = 12, padB = 24;
+  var chartW = W - padL - padR;
+  var chartH = H - padT - padB;
+
+  function xPos(di) { return padL + (di / 6) * chartW; }
+  function yPos(val) { return padT + chartH - ((val - minV) / (maxV - minV)) * chartH; }
+
+  // Target range band (70-180 mg/dL)
+  ctx.fillStyle = 'rgba(74,255,176,0.06)';
+  ctx.fillRect(padL, yPos(180), chartW, yPos(70) - yPos(180));
+
+  // Grid lines
+  ctx.strokeStyle = 'rgba(192,207,224,0.12)';
+  ctx.lineWidth = 1;
+  [70, 100, 140, 180, 250].forEach(function(v) {
+    if (v >= minV && v <= maxV) {
+      var y = yPos(v);
+      ctx.beginPath();
+      ctx.moveTo(padL, y);
+      ctx.lineTo(W - padR, y);
+      ctx.stroke();
+      ctx.fillStyle = 'rgba(192,207,224,0.4)';
+      ctx.font = '9px Montserrat, sans-serif';
+      ctx.textAlign = 'right';
+      ctx.fillText(v, padL - 3, y + 3);
+    }
+  });
+
+  // Day labels
+  labels.forEach(function(lbl, di) {
+    ctx.fillStyle = 'rgba(192,207,224,0.5)';
+    ctx.font = '9px Montserrat, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(lbl, xPos(di), H - 6);
+  });
+
+  // Draw each dataset line
+  Object.keys(datasets).forEach(function(key) {
+    var ds = datasets[key];
+    var points = ds.values.map(function(v, di) { return v !== null ? {x: xPos(di), y: yPos(v)} : null; });
+
+    ctx.strokeStyle = ds.color;
+    ctx.lineWidth = 2;
+    ctx.lineJoin = 'round';
+    ctx.beginPath();
+    var started = false;
+    points.forEach(function(pt) {
+      if (pt === null) { started = false; return; }
+      if (!started) { ctx.moveTo(pt.x, pt.y); started = true; }
+      else ctx.lineTo(pt.x, pt.y);
+    });
+    ctx.stroke();
+
+    // Dots
+    points.forEach(function(pt) {
+      if (pt === null) return;
+      ctx.fillStyle = ds.color;
+      ctx.beginPath();
+      ctx.arc(pt.x, pt.y, 3, 0, Math.PI * 2);
+      ctx.fill();
+    });
+  });
+
+  // Hypo event markers
+  DAYS.forEach(function(day, di) {
+    var p = week + '_' + di;
+    var hypoCount = 0;
+    ['hypo1','hypo2','hypo3'].forEach(function(hk) { if (gData[p+'_'+hk]) hypoCount++; });
+    if (hypoCount > 0) {
+      var x = xPos(di);
+      ctx.fillStyle = 'rgba(255,74,106,0.85)';
+      ctx.beginPath();
+      ctx.arc(x, padT + 6, 5, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = 'white';
+      ctx.font = 'bold 7px Montserrat, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText(hypoCount, x, padT + 9);
+    }
+  });
 }
 
 // ═══════════════════════════ MEALS ═══════════════════════════
@@ -2437,6 +2697,17 @@ var FOOD_DB = [
   ["Mixed nuts","1 oz (28g)",6,170,5,15,2],
   ["Popcorn light","2 cups (16g)",12,62,2,1,2],
   ["Walnuts snack","1 oz (28g)",4,185,4,18,2],
+  // ── BEVERAGES ──
+  ["Coffee black","8 oz (240ml)",0,2,0,0,0],
+  ["Coffee with 2 tbsp creamer","8 oz + 2 tbsp creamer",4,45,1,2,0],
+  ["Sugar-free non-dairy creamer","1 tbsp (15ml)",1,10,0,1,0],
+  ["Sugar-free non-dairy creamer 2 tbsp","2 tbsp (30ml)",2,20,0,2,0],
+  ["Non-dairy creamer regular","1 tbsp (15ml)",4,30,0,2,0],
+  ["Half and half","2 tbsp (30ml)",1,40,1,3,0],
+  ["Almond milk unsweetened","1 cup (240ml)",1,30,1,3,0],
+  ["Oat milk","1 cup (240ml)",16,120,3,5,2],
+  ["Tea black unsweetened","8 oz (240ml)",0,2,0,0,0],
+  ["Water","any amount",0,0,0,0,0],
 ];
 
 
@@ -2569,6 +2840,41 @@ function saveScanResult() {
   renderCarbScanHistory();
   toast('Meal saved!');
   resetCarbScan();
+}
+
+function addManualFood() {
+  var name = document.getElementById('manualFoodName').value.trim();
+  var serving = document.getElementById('manualServing').value.trim() || '1 serving';
+  var carbs = parseInt(document.getElementById('manualCarbs').value) || 0;
+  var cal = parseInt(document.getElementById('manualCal').value) || 0;
+  var pro = parseInt(document.getElementById('manualPro').value) || 0;
+  var fat = parseInt(document.getElementById('manualFat').value) || 0;
+
+  if (!name) { toast('Please enter a food name'); return; }
+
+  scanFoods.push({
+    dbIdx: -1,
+    mult: 1,
+    name: name,
+    serving: serving,
+    carbs: carbs,
+    cal: cal,
+    pro: pro,
+    fat: fat,
+    fiber: 0,
+    manual: true
+  });
+
+  // Clear manual fields
+  document.getElementById('manualFoodName').value = '';
+  document.getElementById('manualServing').value = '';
+  document.getElementById('manualCarbs').value = '';
+  document.getElementById('manualCal').value = '';
+  document.getElementById('manualPro').value = '';
+  document.getElementById('manualFat').value = '';
+
+  updateFoodList();
+  toast(name + ' added');
 }
 
 function resetCarbScan() {
