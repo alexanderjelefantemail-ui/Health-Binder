@@ -615,7 +615,7 @@
     <button onclick="document.getElementById('importFileInput').click()" style="width:100%;background:linear-gradient(135deg,rgba(74,255,176,0.18),rgba(74,255,176,0.08));border:1px solid rgba(74,255,176,0.4);color:var(--success);font-family:Montserrat,sans-serif;font-size:13px;font-weight:700;letter-spacing:1px;padding:14px;border-radius:8px;cursor:pointer;text-transform:uppercase;display:flex;align-items:center;justify-content:center;gap:8px;">
       <span style="font-size:18px;">&#8679;</span> Import / Restore Backup
     </button>
-    <input type="file" id="importFileInput" accept=".json,.hbk" style="display:none" onchange="importData(event)">
+    <input type="file" id="importFileInput" accept=".json,application/json" style="display:none" onchange="importData(event)">
     <div style="background:rgba(74,158,255,0.06);border-radius:8px;padding:10px 12px;margin-top:10px;font-size:11px;color:var(--silver-dim);line-height:1.6;">
       <strong style="color:var(--silver)">Tip:</strong> After tapping Export, look for <strong>Save to Files</strong> in the Share Sheet to pick iCloud Drive or any folder on your phone.
     </div>
@@ -3104,75 +3104,79 @@ function initCarbScanner() {
 }
 
 function exportData() {
-  try {
-    var exportObj = {
-      version: 2,
-      exportDate: new Date().toISOString(),
-      appName: 'Health Binder',
-      data: state
-    };
+  var exportObj = {
+    version: 2,
+    exportDate: new Date().toISOString(),
+    appName: 'Health Binder',
+    data: state
+  };
 
-    var json = JSON.stringify(exportObj, null, 2);
-    var today = todayStr();
-    var filename = 'HealthBinder_Backup_' + today + '.hbk';
+  var json = JSON.stringify(exportObj, null, 2);
+  var today = todayStr();
+  var filename = 'HealthBinder_Backup_' + today + '.json';
 
-    var weightCount = state.weightLog ? state.weightLog.length : 0;
-    var photoCount = state.photos ? state.photos.length : 0;
-    var reflCount = state.reflections ? state.reflections.length : 0;
-    var scanCount = state.carbScans ? state.carbScans.length : 0;
-    var summary = weightCount + ' weights, ' + photoCount + ' photos, ' + reflCount + ' reflections, ' + scanCount + ' meal scans';
+  var weightCount = state.weightLog ? state.weightLog.length : 0;
+  var photoCount  = state.photos    ? state.photos.length    : 0;
+  var reflCount   = state.reflections ? state.reflections.length : 0;
+  var scanCount   = state.carbScans ? state.carbScans.length  : 0;
+  var summary = weightCount + ' weights, ' + photoCount + ' photos, ' + reflCount + ' reflections, ' + scanCount + ' meal scans';
 
-    var blob = new Blob([json], {type: 'application/octet-stream'});
+  var blob = new Blob([json], {type: 'application/json'});
 
-    // Try Web Share API first (iOS Share Sheet — lets user pick iCloud, Google Drive, etc.)
-    if (navigator.share && navigator.canShare) {
-      var shareFile = new File([blob], filename, {type: 'application/octet-stream'});
-      if (navigator.canShare({files: [shareFile]})) {
-        navigator.share({
-          files: [shareFile],
-          title: 'Health Binder Backup',
-          text: 'Health Binder backup — ' + summary
-        }).then(function() {
-          var status = document.getElementById('backupStatus');
-          if (status) { status.textContent = 'Backup shared successfully.'; status.style.color = 'var(--success)'; }
-          toast('Backup exported — ' + summary);
-        }).catch(function(err) {
-          if (err.name !== 'AbortError') {
-            fallbackDownload(blob, filename, summary);
-          } else {
-            var status = document.getElementById('backupStatus');
-            if (status) status.textContent = 'Share cancelled.';
-          }
-        });
-        return;
-      }
+  // iOS Safari Share Sheet — attempt file share directly
+  // Skip canShare() check — it returns false for files in some home-screen app contexts
+  // even when sharing actually works fine
+  if (typeof navigator.share === 'function') {
+    try {
+      var shareFile = new File([blob], filename, {type: 'application/json'});
+      navigator.share({
+        files: [shareFile],
+        title: 'Health Binder Backup',
+        text: 'Health Binder backup — ' + summary
+      }).then(function() {
+        setBackupStatus('Backup shared — ' + summary, 'var(--success)');
+        toast('Backup shared successfully!');
+      }).catch(function(err) {
+        if (err.name === 'AbortError') {
+          // User dismissed share sheet — that is OK, do nothing
+          setBackupStatus('Share cancelled.', 'var(--silver-dim)');
+        } else {
+          // Share failed for another reason — fall back to download
+          fallbackDownload(blob, filename, summary);
+        }
+      });
+      return; // Share initiated — exit here
+    } catch(shareErr) {
+      // File sharing not supported in this context — fall through to download
     }
+  }
 
-    // Fallback: direct download to Files > Downloads
-    fallbackDownload(blob, filename, summary);
+  // Fallback for non-iOS or unsupported contexts: download to Files > Downloads
+  fallbackDownload(blob, filename, summary);
+}
 
+function fallbackDownload(blob, filename, summary) {
+  try {
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    a.style.display = 'none';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(function() { URL.revokeObjectURL(url); }, 3000);
+    setBackupStatus('Saved to Files > Downloads: ' + filename, 'var(--silver-dim)');
+    toast('Saved to Downloads — ' + summary);
   } catch(err) {
-    var status = document.getElementById('backupStatus');
-    if (status) { status.textContent = 'Export failed. Try again.'; status.style.color = 'var(--danger)'; }
+    setBackupStatus('Export failed. Try again.', 'var(--danger)');
     toast('Export failed');
   }
 }
 
-function fallbackDownload(blob, filename, summary) {
-  var url = URL.createObjectURL(blob);
-  var a = document.createElement('a');
-  a.href = url;
-  a.download = filename;
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  setTimeout(function() { URL.revokeObjectURL(url); }, 2000);
-  var status = document.getElementById('backupStatus');
-  if (status) {
-    status.textContent = 'Saved to Files > Downloads: ' + filename;
-    status.style.color = 'var(--silver-dim)';
-  }
-  toast('Backup saved to Downloads — ' + summary);
+function setBackupStatus(msg, color) {
+  var el = document.getElementById('backupStatus');
+  if (el) { el.textContent = msg; el.style.color = color || 'var(--silver-dim)'; }
 }
 
 function importData(event) {
