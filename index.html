@@ -349,6 +349,17 @@
   /* bottom safe area */
   .page-footer { height: 32px; }
 
+  /* ── PHOTO SECTION ENHANCED ── */
+  .photo-btn-row { display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px; }
+  .photo-btn { padding:12px 8px;border-radius:8px;border:none;font-family:'Montserrat',sans-serif;font-size:12px;font-weight:700;letter-spacing:0.8px;cursor:pointer;text-transform:uppercase;text-align:center;transition:all 0.2s; }
+  .photo-btn-camera { background:linear-gradient(135deg,rgba(74,158,255,0.25),rgba(74,158,255,0.12));border:1px solid rgba(74,158,255,0.5);color:var(--accent); }
+  .photo-btn-library { background:linear-gradient(135deg,rgba(74,255,176,0.18),rgba(74,255,176,0.08));border:1px solid rgba(74,255,176,0.4);color:var(--success); }
+  .photo-btn:active { opacity:0.7;transform:scale(0.97); }
+  .timer-wrap { display:none;text-align:center;padding:16px;background:rgba(10,22,40,0.9);border-radius:10px;margin-top:10px;border:1px solid var(--border); }
+  .timer-countdown { font-family:'Bebas Neue',sans-serif;font-size:72px;color:var(--accent);line-height:1;text-shadow:0 0 30px rgba(74,158,255,0.5); }
+  .timer-label { font-size:12px;color:var(--silver-dim);letter-spacing:2px;margin-top:4px;text-transform:uppercase; }
+  .timer-cancel { margin-top:12px;background:none;border:1px solid rgba(255,74,106,0.4);color:var(--danger);font-family:'Montserrat',sans-serif;font-size:11px;font-weight:600;padding:7px 20px;border-radius:6px;cursor:pointer;letter-spacing:1px;text-transform:uppercase; }
+
   /* ── CARB SCANNER ── */
   .scan-upload-box {
     border: 2px dashed var(--border);
@@ -644,20 +655,53 @@
 <!-- ══════════════════════════════════ PHOTOS ══════════════════════════════════ -->
 <div class="page" id="page-photos">
   <div class="card">
-    <div class="card-title">Add Weekly Progress Photo</div>
+    <div class="card-title">Add Progress Photo</div>
     <label>Date</label>
     <input type="date" id="photoDate">
     <label>Weight at photo (lbs)</label>
     <input type="number" id="photoWeight" placeholder="e.g. 212.5" step="0.1">
     <label>Label</label>
-    <input type="text" id="photoLabel" placeholder="Week 1 · Front, etc.">
-    <div style="margin-top:12px;">
-      <button class="btn btn-primary" style="margin-top:0;" onclick="document.getElementById('photoFileInput').click()">📷 Choose / Take Photo</button>
-      <input type="file" id="photoFileInput" accept="image/*" capture="environment" onchange="loadPhotoPreview(event)">
+    <input type="text" id="photoLabel" placeholder="Week 1 - Front, Side, etc.">
+
+    <div class="photo-btn-row">
+      <button class="photo-btn photo-btn-camera" onclick="openPhotoCamera()">
+        &#128247; Take Photo
+      </button>
+      <button class="photo-btn photo-btn-library" onclick="document.getElementById('photoLibraryInput').click()">
+        &#128444; Upload from Library
+      </button>
     </div>
+
+    <!-- Camera input — no capture attribute so it opens the chooser on iOS -->
+    <input type="file" id="photoCameraInput" accept="image/*" capture="environment" style="display:none" onchange="handlePhotoSelected(event)">
+    <!-- Library input — no capture so it goes straight to photo library -->
+    <input type="file" id="photoLibraryInput" accept="image/*" style="display:none" onchange="handlePhotoSelected(event)">
+
+    <!-- Timer section -->
+    <div class="timer-wrap" id="photoTimerWrap">
+      <div style="font-size:11px;color:var(--silver-dim);letter-spacing:1px;margin-bottom:8px;text-transform:uppercase;">Photo timer — get in position!</div>
+      <div class="timer-countdown" id="timerCountdown">10</div>
+      <div class="timer-label" id="timerLabel">seconds until camera opens</div>
+      <button class="timer-cancel" onclick="cancelPhotoTimer()">Cancel Timer</button>
+    </div>
+
+    <!-- Timer duration selector -->
+    <div id="timerOptions" style="margin-top:12px;display:none;text-align:center;">
+      <div style="font-size:11px;color:var(--silver-dim);margin-bottom:8px;letter-spacing:1px;text-transform:uppercase;">Timer duration</div>
+      <div style="display:flex;gap:8px;justify-content:center;">
+        <button onclick="startPhotoTimer(5)" style="background:var(--navy-light);border:1px solid var(--border);color:var(--silver);border-radius:6px;padding:8px 16px;font-size:13px;font-weight:700;cursor:pointer;font-family:Montserrat,sans-serif;">5s</button>
+        <button onclick="startPhotoTimer(10)" style="background:var(--navy-light);border:1px solid var(--border);color:var(--silver);border-radius:6px;padding:8px 16px;font-size:13px;font-weight:700;cursor:pointer;font-family:Montserrat,sans-serif;">10s</button>
+        <button onclick="startPhotoTimer(30)" style="background:var(--navy-light);border:1px solid var(--border);color:var(--silver);border-radius:6px;padding:8px 16px;font-size:13px;font-weight:700;cursor:pointer;font-family:Montserrat,sans-serif;">30s</button>
+        <button onclick="document.getElementById('timerOptions').style.display='none';" style="background:none;border:1px solid rgba(255,74,106,0.3);color:rgba(255,74,106,0.6);border-radius:6px;padding:8px 14px;font-size:12px;cursor:pointer;font-family:Montserrat,sans-serif;">Cancel</button>
+      </div>
+    </div>
+
     <div id="photoPreviewWrap" style="display:none;margin-top:12px;">
-      <img id="photoPreview" style="width:100%;border-radius:8px;max-height:240px;object-fit:cover;">
-      <button class="btn btn-primary" style="margin-top:8px;" onclick="savePhoto()">Save Photo</button>
+      <img id="photoPreview" style="width:100%;border-radius:8px;max-height:260px;object-fit:cover;display:block;">
+      <div style="display:flex;gap:8px;margin-top:10px;">
+        <button class="btn btn-primary" style="margin-top:0;" onclick="savePhoto()">Save Photo</button>
+        <button class="btn" style="margin-top:0;background:var(--navy-light);border:1px solid var(--border);color:var(--silver);flex:1;" onclick="clearPhotoPreview()">Retake</button>
+      </div>
     </div>
   </div>
 
@@ -1236,54 +1280,161 @@ function renderWeightHistory() {
 }
 
 // ═══════════════════════════ PHOTOS ═══════════════════════════
-let pendingPhotoData = null;
+// ═══════════════════════════ PHOTOS ═══════════════════════════
+var pendingPhotoData = null;
+var photoTimerInterval = null;
+var photoTimerSeconds = 0;
 
-function loadPhotoPreview(event) {
-  const file = event.target.files[0];
+function openPhotoCamera() {
+  // Show timer option first
+  document.getElementById('timerOptions').style.display = 'block';
+  document.getElementById('photoPreviewWrap').style.display = 'none';
+}
+
+function startPhotoTimer(seconds) {
+  document.getElementById('timerOptions').style.display = 'none';
+  document.getElementById('photoTimerWrap').style.display = 'block';
+  photoTimerSeconds = seconds;
+  document.getElementById('timerCountdown').textContent = seconds;
+  document.getElementById('timerLabel').textContent = 'seconds — get in position!';
+
+  photoTimerInterval = setInterval(function() {
+    photoTimerSeconds--;
+    document.getElementById('timerCountdown').textContent = photoTimerSeconds;
+
+    if (photoTimerSeconds <= 3) {
+      document.getElementById('timerCountdown').style.color = 'var(--danger)';
+      document.getElementById('timerCountdown').style.textShadow = '0 0 30px rgba(255,74,106,0.6)';
+    }
+
+    if (photoTimerSeconds <= 0) {
+      clearInterval(photoTimerInterval);
+      photoTimerInterval = null;
+      document.getElementById('photoTimerWrap').style.display = 'none';
+      document.getElementById('timerCountdown').style.color = 'var(--accent)';
+      document.getElementById('timerCountdown').style.textShadow = '0 0 30px rgba(74,158,255,0.5)';
+      // Open camera after timer
+      document.getElementById('photoCameraInput').value = '';
+      document.getElementById('photoCameraInput').click();
+    }
+  }, 1000);
+}
+
+function cancelPhotoTimer() {
+  if (photoTimerInterval) {
+    clearInterval(photoTimerInterval);
+    photoTimerInterval = null;
+  }
+  document.getElementById('photoTimerWrap').style.display = 'none';
+  document.getElementById('timerCountdown').style.color = 'var(--accent)';
+  document.getElementById('timerCountdown').style.textShadow = '0 0 30px rgba(74,158,255,0.5)';
+}
+
+function handlePhotoSelected(event) {
+  // Guard against duplicate firings — only process first file
+  var file = event.target.files && event.target.files[0];
   if (!file) return;
-  const reader = new FileReader();
-  reader.onload = (e) => {
+
+  // Reset the input immediately to prevent duplicate events
+  var inputId = event.target.id;
+
+  var reader = new FileReader();
+  reader.onload = function(e) {
     pendingPhotoData = e.target.result;
     document.getElementById('photoPreview').src = pendingPhotoData;
     document.getElementById('photoPreviewWrap').style.display = 'block';
+    document.getElementById('timerOptions').style.display = 'none';
+    document.getElementById('photoTimerWrap').style.display = 'none';
+    // Scroll preview into view
+    document.getElementById('photoPreviewWrap').scrollIntoView({behavior:'smooth', block:'nearest'});
   };
   reader.readAsDataURL(file);
+
+  // Reset input value after a short delay so it can be used again
+  setTimeout(function() {
+    document.getElementById(inputId).value = '';
+  }, 500);
+}
+
+function clearPhotoPreview() {
+  pendingPhotoData = null;
+  document.getElementById('photoPreview').src = '';
+  document.getElementById('photoPreviewWrap').style.display = 'none';
+  document.getElementById('photoCameraInput').value = '';
+  document.getElementById('photoLibraryInput').value = '';
 }
 
 function savePhoto() {
-  if (!pendingPhotoData) { toast('Please choose a photo'); return; }
-  const date = document.getElementById('photoDate').value || todayStr();
-  const weight = parseFloat(document.getElementById('photoWeight').value) || null;
-  const label = document.getElementById('photoLabel').value || 'Progress Photo';
-  state.photos.push({ date, weight, label, data: pendingPhotoData });
-  state.photos.sort((a, b) => a.date.localeCompare(b.date));
+  if (!pendingPhotoData) { toast('Please choose a photo first'); return; }
+  var date = document.getElementById('photoDate').value || todayStr();
+  var weight = parseFloat(document.getElementById('photoWeight').value) || null;
+  var label = document.getElementById('photoLabel').value || 'Progress Photo';
+
+  // Use a stable unique ID for each photo to fix delete index issues
+  var photoId = Date.now() + '_' + Math.random().toString(36).slice(2,8);
+
+  state.photos.push({ id: photoId, date: date, weight: weight, label: label, data: pendingPhotoData });
+  state.photos.sort(function(a, b) { return a.date.localeCompare(b.date); });
   saveState();
+
+  // Reset form
   pendingPhotoData = null;
   document.getElementById('photoPreviewWrap').style.display = 'none';
   document.getElementById('photoDate').value = '';
   document.getElementById('photoWeight').value = '';
   document.getElementById('photoLabel').value = '';
-  document.getElementById('photoFileInput').value = '';
+  document.getElementById('photoCameraInput').value = '';
+  document.getElementById('photoLibraryInput').value = '';
+
   renderPhotos();
   toast('Photo saved!');
 }
 
-function deletePhoto(idx) {
-  state.photos.splice(idx, 1);
+function deletePhoto(photoId) {
+  // Use stable ID lookup instead of fragile array index
+  var idx = state.photos.findIndex(function(p) { return p.id === photoId; });
+  if (idx === -1) {
+    // Fallback: try treating photoId as numeric index for old photos without IDs
+    var numIdx = parseInt(photoId);
+    if (!isNaN(numIdx) && numIdx >= 0 && numIdx < state.photos.length) {
+      state.photos.splice(numIdx, 1);
+    }
+  } else {
+    state.photos.splice(idx, 1);
+  }
   saveState();
   renderPhotos();
   toast('Photo removed');
 }
 
 function renderPhotos() {
-  const gallery = document.getElementById('photoGallery');
-  const empty = document.getElementById('photoEmpty');
-  if (state.photos.length === 0) { gallery.innerHTML = ''; empty.style.display = 'block'; return; }
+  var gallery = document.getElementById('photoGallery');
+  var empty = document.getElementById('photoEmpty');
+
+  if (!state.photos || state.photos.length === 0) {
+    gallery.innerHTML = '';
+    empty.style.display = 'block';
+    return;
+  }
   empty.style.display = 'none';
-  gallery.innerHTML = [...state.photos].reverse().map((p, ri) => {
-    const idx = state.photos.length - 1 - ri;
-    const wStr = p.weight ? p.weight + ' lbs' : '';
-    return '<div class="photo-card"><img src="' + p.data + '" alt="' + p.label + '"><div class="photo-meta"><div class="photo-date">' + fmtDate(p.date) + ' - ' + p.label + '</div>' + (p.weight ? '<div class="photo-weight">' + wStr + '</div>' : '') + '</div><div class="photo-actions"><button class="btn-sm btn-danger" onclick="deletePhoto(' + idx + ')" style="font-size:10px;">Remove</button></div></div>';
+
+  // Render newest first — use stable photo ID for delete
+  var reversed = state.photos.slice().reverse();
+  gallery.innerHTML = reversed.map(function(p) {
+    var wStr = p.weight ? p.weight + ' lbs' : '';
+    // Use stable ID if available, otherwise fall back to original index
+    var deleteKey = p.id ? "'" + p.id + "'" : String(state.photos.indexOf(p));
+    return '<div class="photo-card">' +
+      '<img src="' + p.data + '" alt="' + p.label + '" loading="lazy">' +
+      '<div class="photo-meta">' +
+        '<div class="photo-date">' + fmtDate(p.date) + '</div>' +
+        '<div style="font-size:11px;color:var(--silver-dim);">' + p.label + '</div>' +
+        (p.weight ? '<div class="photo-weight">' + wStr + '</div>' : '') +
+      '</div>' +
+      '<div class="photo-actions">' +
+        '<button class="btn-sm btn-danger" onclick="deletePhoto(' + deleteKey + ')" style="font-size:11px;padding:6px 12px;">Remove</button>' +
+      '</div>' +
+    '</div>';
   }).join('');
 }
 
