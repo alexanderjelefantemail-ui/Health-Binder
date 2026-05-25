@@ -592,10 +592,28 @@
   <div class="card-title" style="padding:0 0 8px; margin:0 0 10px; border-bottom:1px solid var(--border); font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:2px;color:var(--silver);">Recent Weights</div>
   <div id="dashRecentWeights" style="margin-bottom:14px;"></div>
 
-  <div style="text-align:center;margin-top:8px;padding-bottom:4px;">
-    <button onclick="clearAllData()" style="background:none;border:1px solid rgba(255,74,106,0.3);color:rgba(255,74,106,0.6);font-family:Montserrat,sans-serif;font-size:11px;font-weight:600;letter-spacing:1px;padding:8px 18px;border-radius:6px;cursor:pointer;text-transform:uppercase;">
-      Clear All Data &amp; Start Fresh
+  <div class="card" style="margin-top:4px;">
+    <div class="card-title">Backup &amp; Restore</div>
+    <div style="font-size:12px;color:var(--silver-bright);line-height:1.7;margin-bottom:12px;">
+      <strong style="color:var(--accent)">Export</strong> opens the iOS Share Sheet so you can save your backup to <strong>iCloud Drive</strong>, <strong>Google Drive</strong>, <strong>Dropbox</strong>, email it to yourself, or AirDrop it to your Mac — you choose where it goes.<br><br>
+      <strong style="color:var(--success)">Import</strong> restores from any previously exported backup file.
+    </div>
+    <button onclick="exportData()" style="width:100%;background:linear-gradient(135deg,rgba(74,158,255,0.25),rgba(74,158,255,0.12));border:1px solid rgba(74,158,255,0.5);color:var(--accent);font-family:Montserrat,sans-serif;font-size:13px;font-weight:700;letter-spacing:1px;padding:14px;border-radius:8px;cursor:pointer;text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;justify-content:center;gap:8px;">
+      <span style="font-size:18px;">&#8681;</span> Export &amp; Share Backup
     </button>
+    <button onclick="document.getElementById('importFileInput').click()" style="width:100%;background:linear-gradient(135deg,rgba(74,255,176,0.18),rgba(74,255,176,0.08));border:1px solid rgba(74,255,176,0.4);color:var(--success);font-family:Montserrat,sans-serif;font-size:13px;font-weight:700;letter-spacing:1px;padding:14px;border-radius:8px;cursor:pointer;text-transform:uppercase;display:flex;align-items:center;justify-content:center;gap:8px;">
+      <span style="font-size:18px;">&#8679;</span> Import / Restore Backup
+    </button>
+    <input type="file" id="importFileInput" accept=".json,.hbk" style="display:none" onchange="importData(event)">
+    <div style="background:rgba(74,158,255,0.06);border-radius:8px;padding:10px 12px;margin-top:10px;font-size:11px;color:var(--silver-dim);line-height:1.6;">
+      <strong style="color:var(--silver)">Tip:</strong> After tapping Export, look for <strong>Save to Files</strong> in the Share Sheet to pick iCloud Drive or any folder on your phone.
+    </div>
+    <div id="backupStatus" style="font-size:11px;color:var(--silver-dim);text-align:center;min-height:16px;margin-top:8px;"></div>
+    <div style="border-top:1px solid var(--border);margin-top:12px;padding-top:12px;text-align:center;">
+      <button onclick="clearAllData()" style="background:none;border:1px solid rgba(255,74,106,0.3);color:rgba(255,74,106,0.5);font-family:Montserrat,sans-serif;font-size:10px;font-weight:600;letter-spacing:1px;padding:7px 16px;border-radius:6px;cursor:pointer;text-transform:uppercase;">
+        Clear All Data &amp; Start Fresh
+      </button>
+    </div>
   </div>
 
   <div class="page-footer"></div>
@@ -2932,6 +2950,169 @@ function initCarbScanner() {
   } else {
     document.getElementById('tfStatus').textContent = 'Use manual search below to add foods';
   }
+}
+
+function exportData() {
+  try {
+    var exportObj = {
+      version: 2,
+      exportDate: new Date().toISOString(),
+      appName: 'Health Binder',
+      data: state
+    };
+
+    var json = JSON.stringify(exportObj, null, 2);
+    var today = todayStr();
+    var filename = 'HealthBinder_Backup_' + today + '.hbk';
+
+    var weightCount = state.weightLog ? state.weightLog.length : 0;
+    var photoCount = state.photos ? state.photos.length : 0;
+    var reflCount = state.reflections ? state.reflections.length : 0;
+    var scanCount = state.carbScans ? state.carbScans.length : 0;
+    var summary = weightCount + ' weights, ' + photoCount + ' photos, ' + reflCount + ' reflections, ' + scanCount + ' meal scans';
+
+    var blob = new Blob([json], {type: 'application/octet-stream'});
+
+    // Try Web Share API first (iOS Share Sheet — lets user pick iCloud, Google Drive, etc.)
+    if (navigator.share && navigator.canShare) {
+      var shareFile = new File([blob], filename, {type: 'application/octet-stream'});
+      if (navigator.canShare({files: [shareFile]})) {
+        navigator.share({
+          files: [shareFile],
+          title: 'Health Binder Backup',
+          text: 'Health Binder backup — ' + summary
+        }).then(function() {
+          var status = document.getElementById('backupStatus');
+          if (status) { status.textContent = 'Backup shared successfully.'; status.style.color = 'var(--success)'; }
+          toast('Backup exported — ' + summary);
+        }).catch(function(err) {
+          if (err.name !== 'AbortError') {
+            fallbackDownload(blob, filename, summary);
+          } else {
+            var status = document.getElementById('backupStatus');
+            if (status) status.textContent = 'Share cancelled.';
+          }
+        });
+        return;
+      }
+    }
+
+    // Fallback: direct download to Files > Downloads
+    fallbackDownload(blob, filename, summary);
+
+  } catch(err) {
+    var status = document.getElementById('backupStatus');
+    if (status) { status.textContent = 'Export failed. Try again.'; status.style.color = 'var(--danger)'; }
+    toast('Export failed');
+  }
+}
+
+function fallbackDownload(blob, filename, summary) {
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(function() { URL.revokeObjectURL(url); }, 2000);
+  var status = document.getElementById('backupStatus');
+  if (status) {
+    status.textContent = 'Saved to Files > Downloads: ' + filename;
+    status.style.color = 'var(--silver-dim)';
+  }
+  toast('Backup saved to Downloads — ' + summary);
+}
+
+function importData(event) {
+  var file = event.target.files[0];
+  if (!file) return;
+
+  var status = document.getElementById('backupStatus');
+  if (status) {
+    status.textContent = 'Reading backup file...';
+    status.style.color = 'var(--silver-dim)';
+  }
+
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      var parsed = JSON.parse(e.target.result);
+
+      // Validate it's a Health Binder backup
+      if (!parsed.appName || parsed.appName !== 'Health Binder') {
+        throw new Error('Not a valid Health Binder backup file');
+      }
+      if (!parsed.data) {
+        throw new Error('Backup file contains no data');
+      }
+
+      // Confirm before overwriting
+      var weightCount = parsed.data.weightLog ? parsed.data.weightLog.length : 0;
+      var photoCount = parsed.data.photos ? parsed.data.photos.length : 0;
+      var exportDate = parsed.exportDate ? parsed.exportDate.slice(0,10) : 'unknown date';
+
+      var msg = 'Restore backup from ' + exportDate + '?\n\nThis contains:\n' +
+        '- ' + weightCount + ' weight entries\n' +
+        '- ' + photoCount + ' photos\n' +
+        '- ' + (parsed.data.reflections ? parsed.data.reflections.length : 0) + ' reflections\n' +
+        '- ' + (parsed.data.carbScans ? parsed.data.carbScans.length : 0) + ' meal scans\n\n' +
+        'This will REPLACE all current data. Continue?';
+
+      if (!confirm(msg)) {
+        if (status) status.textContent = 'Import cancelled.';
+        document.getElementById('importFileInput').value = '';
+        return;
+      }
+
+      // Restore data
+      state = parsed.data;
+
+      // Ensure all expected keys exist
+      if (!state.weightLog) state.weightLog = [];
+      if (!state.habits) state.habits = {};
+      if (!state.glucose) state.glucose = {};
+      if (!state.photos) state.photos = [];
+      if (!state.reflections) state.reflections = [];
+      if (!state.carbScans) state.carbScans = [];
+
+      saveState();
+
+      // Re-render all pages
+      renderDashboard();
+      renderWeightHistory();
+      renderPhotos();
+      renderHabits();
+      renderGlucose();
+      renderReflections();
+      if (typeof renderCarbScanHistory === 'function') renderCarbScanHistory();
+
+      if (status) {
+        status.textContent = 'Backup restored successfully from ' + exportDate;
+        status.style.color = 'var(--success)';
+      }
+      toast('Data restored! ' + weightCount + ' weights and ' + photoCount + ' photos loaded');
+
+    } catch(err) {
+      if (status) {
+        status.textContent = 'Import failed: ' + err.message;
+        status.style.color = 'var(--danger)';
+      }
+      toast('Import failed - invalid backup file');
+    }
+    // Reset file input
+    document.getElementById('importFileInput').value = '';
+  };
+
+  reader.onerror = function() {
+    if (status) {
+      status.textContent = 'Could not read the file. Try again.';
+      status.style.color = 'var(--danger)';
+    }
+    toast('Could not read file');
+  };
+
+  reader.readAsText(file);
 }
 
 function clearAllData() {
