@@ -1138,6 +1138,18 @@ function loadState() {
 function saveState() { localStorage.setItem('wl_binder_v2', JSON.stringify(state)); }
 
 // ═══════════════════════════ UTILS ═══════════════════════════
+function showSaveConfirm() {
+  // Visual flash on header to confirm data was saved to phone
+  var header = document.querySelector('.app-header');
+  if (!header) return;
+  header.style.transition = 'background 0.2s';
+  header.style.background = 'linear-gradient(135deg, rgba(74,255,176,0.3), rgba(10,34,64,1))';
+  setTimeout(function() {
+    header.style.background = '';
+    setTimeout(function() { header.style.transition = ''; }, 300);
+  }, 600);
+}
+
 function toast(msg) {
   const t = document.getElementById('toast');
   t.textContent = msg;
@@ -1206,7 +1218,8 @@ function addWeightEntry() {
   document.getElementById('wNote').value = '';
   renderWeightHistory();
   renderDashboard();
-  toast('Entry saved!');
+  toast('Weight entry saved!');
+  showSaveConfirm();
 }
 
 function deleteWeight(date) {
@@ -1415,15 +1428,15 @@ function savePhoto() {
 
   renderPhotos();
   toast('Photo saved!');
+  showSaveConfirm();
 }
 
 function deletePhoto(photoId) {
+  photoId = String(photoId);
   var idx = -1;
-  // Look up by stable string ID first
   for (var i = 0; i < state.photos.length; i++) {
-    if (state.photos[i].id === photoId) { idx = i; break; }
+    if (String(state.photos[i].id) === photoId) { idx = i; break; }
   }
-  // Fallback: treat as numeric index for old photos without IDs
   if (idx === -1) {
     var numIdx = parseInt(photoId);
     if (!isNaN(numIdx) && numIdx >= 0 && numIdx < state.photos.length) {
@@ -1436,7 +1449,7 @@ function deletePhoto(photoId) {
     renderPhotos();
     toast('Photo removed');
   } else {
-    toast('Could not find photo to remove');
+    toast('Photo not found');
   }
 }
 
@@ -1464,7 +1477,7 @@ function renderPhotos() {
         (wStr ? '<div class="photo-weight">' + wStr + '</div>' : '') +
       '</div>' +
       '<div class="photo-actions">' +
-        '<button class="btn-sm btn-danger" onclick="deletePhoto(' + deleteKey + ')" style="font-size:11px;padding:6px 12px;">Remove</button>' +
+        '<button class="btn-sm btn-danger" onclick="deletePhoto(\'' + (p.id || '') + '\')" style="font-size:11px;padding:6px 12px;">Remove</button>' +
       '</div>' +
     '</div>';
   }).join('');
@@ -1500,6 +1513,7 @@ function toggleHabit(week, key, btn) {
   btn.classList.toggle('checked', !cur);
   btn.textContent = !cur ? 'v' : '';
   saveState();
+  showSaveConfirm();
 }
 
 function showHabitWeek(week) {
@@ -1619,6 +1633,7 @@ function saveGlucose() {
   saveState();
   renderGlucoseChart(week, state.glucose[week]);
   toast('Glucose log saved!');
+  showSaveConfirm();
 }
 
 function renderGlucoseChart(week, gData) {
@@ -2677,9 +2692,12 @@ function showRecognitionResults(detected) {
     html += '<div style="font-size:11px;color:var(--silver-dim);">' + f[1] + ' &nbsp;|&nbsp; ' + pct + '% confidence</div>';
     html += '</div>';
     html += '<div style="text-align:right;">';
-    html += '<div style="font-family:Bebas Neue,sans-serif;font-size:20px;color:var(--gold);">' + f[2] + 'g</div>';
-    html += '<div style="font-size:9px;color:var(--silver-dim);">CARBS</div>';
-    html += '<div style="font-size:10px;color:var(--accent);margin-top:2px;">TAP TO ADD</div>';
+    var netCr = Math.max(0, f[2] - f[6]);
+    html += '<div style="font-family:Bebas Neue,sans-serif;font-size:20px;color:var(--gold);line-height:1;">' + f[2] + '</div>';
+    html += '<div style="font-size:9px;color:var(--silver-dim);letter-spacing:0.5px;">CARBS g</div>';
+    html += '<div style="font-size:9px;color:var(--accent);">net ' + netCr + 'g</div>';
+    html += '<div style="font-size:9px;color:#4affb0;">' + f[4] + 'g pro</div>';
+    html += '<div style="font-size:9px;color:var(--accent);margin-top:2px;">TAP TO ADD</div>';
     html += '</div></div>';
   });
 
@@ -2907,6 +2925,177 @@ var FOOD_DB = [
   ["Mixed nuts","1 oz (28g)",6,170,5,15,2],
   ["Popcorn light","2 cups (16g)",12,62,2,1,2],
   ["Walnuts snack","1 oz (28g)",4,185,4,18,2],
+  // ── CANNED & PACKAGED PROTEINS ──
+  ["Canned chicken breast","5 oz drained (142g)",0,150,30,3,0],
+  ["Canned chicken chunk","3 oz drained (85g)",0,90,18,2,0],
+  ["Canned tuna light","3 oz drained (85g)",0,109,20,3,0],
+  ["Canned tuna albacore","3 oz drained (85g)",0,109,20,3,0],
+  ["Canned salmon pink","3 oz drained (85g)",0,118,17,5,0],
+  ["Canned sardines in water","3 oz (85g)",0,130,17,7,0],
+  ["Canned mackerel","3 oz drained (85g)",0,134,20,6,0],
+  ["Canned shrimp","3 oz drained (85g)",1,85,18,1,0],
+  ["Canned crab meat","3 oz drained (85g)",0,84,17,1,0],
+  ["Canned ham low-sodium","3 oz (85g)",1,100,13,5,0],
+  ["Canned corned beef","3 oz (85g)",0,155,15,10,0],
+  ["Rotisserie chicken breast","4 oz (113g)",0,175,30,5,0],
+  ["Rotisserie chicken thigh","3 oz (85g)",0,175,22,9,0],
+  ["Beef jerky","1 oz (28g)",3,116,9,7,0],
+  ["Turkey jerky","1 oz (28g)",4,70,11,1,0],
+  ["Deli salami","2 oz (57g)",1,197,7,18,0],
+  ["Deli pepperoni","1 oz (28g)",1,138,6,12,0],
+  ["Sausage link chicken","2 links (57g)",2,110,9,8,0],
+  ["Breakfast sausage patty","1 patty (38g)",0,135,7,11,0],
+  ["Vienna sausages canned","3 links (57g)",1,130,5,12,0],
+  // ── ADDITIONAL PROTEINS ──
+  ["Lamb chop","4 oz (113g)",0,245,26,15,0],
+  ["Veal","4 oz (113g)",0,190,28,8,0],
+  ["Duck breast","4 oz (113g)",0,228,27,13,0],
+  ["Turkey ground lean","5 oz (142g)",0,193,28,9,0],
+  ["Chicken drumstick skinless","3 oz (85g)",0,146,24,5,0],
+  ["Chicken wing","2 wings (84g)",0,202,21,13,0],
+  ["Lobster tail","4 oz (113g)",1,110,23,1,0],
+  ["Crab legs","4 oz (113g)",0,98,20,1,0],
+  ["Scallops","4 oz (113g)",4,100,19,1,0],
+  ["Oysters","4 oz (113g)",5,75,9,3,0],
+  ["Clams","4 oz (113g)",5,84,15,1,0],
+  ["Tempeh","3 oz (85g)",11,163,15,9,7],
+  ["Seitan","3 oz (85g)",6,108,21,1,1],
+  ["Black bean burger patty","1 patty (71g)",15,120,6,4,4],
+  // ── ADDITIONAL VEGETABLES ──
+  ["Artichoke hearts","1/2 cup (84g)",9,40,3,0,5],
+  ["Beets sliced","1/2 cup (85g)",8,37,1,0,2],
+  ["Bok choy","1 cup (70g)",2,9,1,0,1],
+  ["Butterhead lettuce","2 cups (110g)",2,15,2,0,2],
+  ["Collard greens cooked","1/2 cup (95g)",5,31,2,0,4],
+  ["Eggplant cubed","1 cup (82g)",5,20,1,0,3],
+  ["Fennel bulb","1 cup sliced (87g)",6,27,1,0,3],
+  ["Jalapeno pepper","1 pepper (14g)",1,4,0,0,0],
+  ["Leek sliced","1/4 cup (26g)",3,13,0,0,0],
+  ["Mixed stir fry vegetables","1 cup (85g)",6,25,2,0,2],
+  ["Napa cabbage","1 cup (76g)",2,12,1,0,1],
+  ["Okra","1/2 cup (80g)",4,18,1,0,2],
+  ["Radish sliced","1/2 cup (58g)",2,10,0,0,1],
+  ["Rutabaga","1/2 cup (85g)",8,33,1,0,2],
+  ["Shallots","1 tbsp (10g)",2,7,0,0,0],
+  ["Sun-dried tomatoes","2 tbsp (14g)",5,35,2,1,1],
+  ["Swiss chard","1 cup (36g)",1,7,1,0,1],
+  ["Tomatillo","1 medium (34g)",2,11,0,0,1],
+  ["Turnip","1/2 cup cooked (78g)",4,17,1,0,2],
+  ["Watercress","1 cup (34g)",0,4,1,0,0],
+  ["Yellow squash","1 cup (130g)",4,18,1,0,1],
+  ["Frozen broccoli","1 cup (91g)",6,30,3,0,3],
+  ["Frozen mixed vegetables","1 cup (128g)",12,59,3,0,4],
+  ["Frozen peas and carrots","1/2 cup (80g)",9,38,2,0,2],
+  ["Frozen spinach","1/2 cup cooked (95g)",5,27,3,0,4],
+  ["Frozen edamame shelled","1/2 cup (75g)",7,90,8,4,4],
+  // ── ADDITIONAL FRUITS ──
+  ["Apricot fresh","2 medium (70g)",8,34,1,0,1],
+  ["Blackberries","1/2 cup (72g)",7,31,1,0,4],
+  ["Cherries sweet","1/2 cup (73g)",11,46,1,0,2],
+  ["Clementine","1 medium (74g)",9,35,1,0,1],
+  ["Cranberries fresh","1/4 cup (28g)",4,13,0,0,1],
+  ["Dates Medjool","1 date (24g)",18,66,0,0,2],
+  ["Dried cranberries","2 tbsp (20g)",17,65,0,0,1],
+  ["Dried mango","2 tbsp (20g)",17,60,0,0,1],
+  ["Figs fresh","1 medium (50g)",10,37,0,0,1],
+  ["Fruit cocktail canned in juice","1/2 cup (124g)",14,55,1,0,1],
+  ["Grapefruit half","1/2 medium (118g)",11,41,1,0,2],
+  ["Honeydew melon","1 cup cubes (170g)",16,64,1,0,1],
+  ["Kiwi","1 medium (69g)",11,42,1,0,2],
+  ["Lemon","1 medium (84g)",8,22,1,0,2],
+  ["Lime","1 medium (67g)",7,20,0,0,2],
+  ["Mandarin orange","1 medium (88g)",12,47,1,0,2],
+  ["Mixed fruit frozen","1/2 cup (140g)",14,56,1,0,2],
+  ["Nectarine","1 medium (142g)",15,62,1,0,2],
+  ["Papaya cubed","1/2 cup (70g)",7,27,0,0,1],
+  ["Passion fruit","1 fruit (18g)",4,17,0,0,2],
+  ["Plum","1 medium (66g)",8,30,0,0,1],
+  ["Pomegranate seeds","1/4 cup (41g)",9,36,1,1,2],
+  ["Prunes","3 prunes (28g)",16,67,1,0,2],
+  ["Raisins","2 tbsp (20g)",15,60,1,0,1],
+  ["Tangerine","1 medium (88g)",12,47,1,0,2],
+  // ── DAIRY ADDITIONS ──
+  ["Ricotta cheese part skim","1/4 cup (62g)",4,86,7,5,0],
+  ["Gouda cheese","1 oz (28g)",1,101,7,8,0],
+  ["Swiss cheese","1 oz (28g)",2,111,8,9,0],
+  ["American cheese","1 slice (21g)",1,66,4,5,0],
+  ["Brie cheese","1 oz (28g)",0,95,6,8,0],
+  ["Plain kefir","1 cup (240ml)",12,110,11,2,0],
+  ["Buttermilk low-fat","1/2 cup (120ml)",6,50,4,1,0],
+  ["Evaporated milk","2 tbsp (32ml)",4,40,3,2,0],
+  ["Whipped cream","2 tbsp (15g)",1,50,0,5,0],
+  // ── GRAINS & BREAD ADDITIONS ──
+  ["Brown rice cakes","2 cakes (18g)",14,70,1,0,1],
+  ["Corn tortilla chips","1 oz (28g)",19,140,2,7,1],
+  ["Croissant","1 medium (57g)",26,231,5,12,1],
+  ["Dinner roll","1 roll (28g)",14,78,2,1,0],
+  ["Flour plain","2 tbsp (16g)",12,58,2,0,0],
+  ["Graham cracker","1 full sheet (28g)",22,122,2,3,1],
+  ["Grits cooked","1/2 cup (121g)",16,73,2,0,0],
+  ["Naan bread","1 piece (90g)",43,262,9,5,2],
+  ["Rye bread","1 slice (32g)",15,83,3,1,2],
+  ["Saltine crackers","6 crackers (15g)",11,72,1,2,0],
+  ["White rice cake","1 cake (9g)",7,35,1,0,0],
+  ["Wonton wrapper","3 wrappers (24g)",14,64,2,0,0],
+  // ── NUTS & SEEDS ADDITIONS ──
+  ["Brazil nuts","1 oz (28g)",4,186,4,19,2],
+  ["Hemp seeds","2 tbsp (20g)",2,111,6,10,1],
+  ["Macadamia nuts","1 oz (28g)",4,204,2,22,2],
+  ["Mixed nuts unsalted","1 oz (28g)",6,170,5,15,2],
+  ["Peanuts roasted","1 oz (28g)",5,161,7,14,2],
+  ["Pecans","1 oz (28g)",4,196,3,20,3],
+  ["Pine nuts","2 tbsp (17g)",2,113,2,11,1],
+  ["Pistachios","1 oz (28g)",8,159,6,13,3],
+  ["Poppy seeds","1 tbsp (9g)",3,46,2,4,1],
+  ["Pumpkin seeds","2 tbsp (16g)",2,86,5,7,1],
+  ["Sesame seeds","1 tbsp (9g)",2,52,2,4,1],
+  ["Tahini","1 tbsp (15g)",3,89,3,8,1],
+  // ── SAUCES DRESSINGS ADDITIONS ──
+  ["BBQ sauce","2 tbsp (34g)",12,55,0,0,0],
+  ["Buffalo sauce","2 tbsp (30ml)",1,10,0,0,0],
+  ["Hoisin sauce","1 tbsp (16g)",7,35,1,1,0],
+  ["Honey mustard","1 tbsp (16g)",5,30,0,1,0],
+  ["Italian dressing","2 tbsp (30ml)",2,35,0,3,0],
+  ["Mayo full fat","1 tbsp (14g)",0,94,0,10,0],
+  ["Mayo light","1 tbsp (14g)",1,35,0,3,0],
+  ["Oyster sauce","1 tbsp (16g)",5,25,1,0,0],
+  ["Pesto","2 tbsp (30g)",2,156,2,16,1],
+  ["Picante sauce","2 tbsp (30g)",2,10,0,0,0],
+  ["Salad dressing balsamic","2 tbsp (30ml)",4,45,0,3,0],
+  ["Sweet chili sauce","1 tbsp (18g)",8,30,0,0,0],
+  ["Tahini dressing","2 tbsp (30g)",5,100,3,8,1],
+  ["Teriyaki sauce","1 tbsp (16g)",6,30,2,0,0],
+  ["Tzatziki","2 tbsp (30g)",1,25,1,2,0],
+  ["Vinegar white","1 tbsp (15ml)",0,3,0,0,0],
+  // ── SOUPS & BROTHS ──
+  ["Beef broth low-sodium","1 cup (240ml)",1,20,3,1,0],
+  ["Chicken broth low-sodium","1 cup (240ml)",1,15,2,0,0],
+  ["Vegetable broth","1 cup (240ml)",3,12,0,0,0],
+  ["Tomato soup condensed","1/2 cup prepared (120ml)",15,85,2,2,1],
+  ["Chicken noodle soup","1 cup (240ml)",10,75,4,2,1],
+  ["Lentil soup canned","1/2 cup (128g)",18,110,8,2,4],
+  ["Minestrone soup","1 cup (240ml)",14,100,5,2,3],
+  ["Clam chowder","1/2 cup (120ml)",10,95,4,5,1],
+  // ── MISCELLANEOUS ──
+  ["Tofu silken","4 oz (113g)",3,61,5,2,0],
+  ["Protein powder whey","1 scoop (30g)",4,120,25,2,0],
+  ["Protein powder plant","1 scoop (30g)",6,120,20,3,2],
+  ["Nutritional yeast","2 tbsp (16g)",5,60,8,1,3],
+  ["Corn starch","1 tbsp (8g)",7,30,0,0,0],
+  ["Bread crumbs","2 tbsp (14g)",11,54,2,1,0],
+  ["Panko bread crumbs","2 tbsp (14g)",12,55,2,1,0],
+  ["Coconut milk canned","2 tbsp (30ml)",1,60,1,6,0],
+  ["Coconut flour","2 tbsp (14g)",8,60,2,3,5],
+  ["Dark soy sauce","1 tbsp (15ml)",2,10,1,0,0],
+  ["Fish sauce","1 tbsp (15ml)",1,6,1,0,0],
+  ["Sriracha sauce","1 tsp (5g)",1,5,0,0,0],
+  ["Tomato paste","1 tbsp (16g)",4,13,1,0,1],
+  ["Tomato sauce canned","1/4 cup (61g)",4,18,1,0,1],
+  ["Diced green chiles","2 tbsp (28g)",1,6,0,0,0],
+  ["Pickle dill","1 medium (65g)",1,7,0,0,1],
+  ["Capers","1 tbsp (9g)",0,2,0,0,0],
+  ["Olives black","5 olives (20g)",1,25,0,2,0],
+  ["Olives green","5 olives (20g)",1,20,0,2,0],
   // ── BEVERAGES ──
   ["Coffee black","8 oz (240ml)",0,2,0,0,0],
   ["Coffee with 2 tbsp creamer","8 oz + 2 tbsp creamer",4,45,1,2,0],
@@ -2933,10 +3122,20 @@ function searchFoods(query) {
   var html = '';
   matches.forEach(function(x) {
     var f = x.f;
-    html += '<div onclick="addFood(' + x.i + ')" style="padding:10px 14px;border-bottom:1px solid var(--border);cursor:pointer;display:flex;justify-content:space-between;align-items:center;">';
+    var netCarbs = Math.max(0, f[2] - f[6]);
+    html += '<div onclick="addFood(' + x.i + ')" style="padding:10px 14px;border-bottom:1px solid var(--border);cursor:pointer;">';
+    html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">';
     html += '<div><div style="font-size:13px;color:var(--silver-bright);font-weight:600;">' + f[0] + '</div>';
-    html += '<div style="font-size:11px;color:var(--silver-dim);">' + f[1] + '</div></div>';
-    html += '<div style="font-family:Bebas Neue,sans-serif;font-size:18px;color:var(--gold);">' + f[2] + 'g <span style="font-size:10px;font-family:Montserrat,sans-serif;color:var(--silver-dim);">carbs</span></div>';
+    html += '<div style="font-size:10px;color:var(--silver-dim);">' + f[1] + '</div></div>';
+    html += '<div style="font-family:Bebas Neue,sans-serif;font-size:20px;color:var(--gold);text-align:right;line-height:1;">' + f[2] + '<div style="font-size:9px;font-family:Montserrat,sans-serif;color:var(--silver-dim);letter-spacing:0.5px;">CARBS g</div></div>';
+    html += '</div>';
+    html += '<div style="display:flex;gap:10px;font-size:10px;color:var(--silver-dim);">';
+    html += '<span>' + f[3] + ' cal</span>';
+    html += '<span style="color:#4affb0;">' + f[4] + 'g pro</span>';
+    html += '<span style="color:#ff9a4a;">' + f[5] + 'g fat</span>';
+    html += '<span style="color:var(--silver-dim);">fiber ' + f[6] + 'g</span>';
+    html += '<span style="color:var(--accent);">net ' + netCarbs + 'g</span>';
+    html += '</div>';
     html += '</div>';
   });
   resultsDiv.innerHTML = html;
@@ -2968,8 +3167,8 @@ function removeFood(idx) {
 }
 
 function changeServings(idx, delta) {
-  var newMult = Math.round((scanFoods[idx].mult + delta) * 10) / 10;
-  if (newMult < 0.5) newMult = 0.5;
+  var newMult = Math.round((scanFoods[idx].mult + delta) * 100) / 100;
+  if (newMult < 0.25) newMult = 0.25;
   if (newMult > 10) newMult = 10;
   scanFoods[idx].mult = newMult;
   updateFoodList();
@@ -3007,10 +3206,18 @@ function updateFoodList() {
     html += '</div></div>';
     html += '<div style="display:flex;gap:8px;align-items:center;">';
     html += '<span style="font-size:11px;color:var(--silver-dim);">Servings:</span>';
-    html += '<button onclick="changeServings(' + idx + ',-0.5)" style="background:var(--navy-light);border:1px solid var(--border);color:var(--silver);border-radius:4px;padding:2px 10px;font-size:16px;cursor:pointer;">-</button>';
+    html += '<button onclick="changeServings(' + idx + ',-0.25)" style="background:var(--navy-light);border:1px solid var(--border);color:var(--silver);border-radius:4px;padding:2px 10px;font-size:16px;cursor:pointer;">-</button>';
     html += '<span style="font-size:14px;font-weight:700;color:var(--silver);min-width:28px;text-align:center;">' + m + '</span>';
-    html += '<button onclick="changeServings(' + idx + ',0.5)" style="background:var(--navy-light);border:1px solid var(--border);color:var(--silver);border-radius:4px;padding:2px 10px;font-size:16px;cursor:pointer;">+</button>';
-    html += '<span style="font-size:11px;color:var(--silver-dim);margin-left:6px;">' + cal + ' cal | ' + pro + 'g pro | ' + fat + 'g fat</span>';
+    html += '<button onclick="changeServings(' + idx + ',0.25)" style="background:var(--navy-light);border:1px solid var(--border);color:var(--silver);border-radius:4px;padding:2px 10px;font-size:16px;cursor:pointer;">+</button>';
+    var netC = Math.max(0, item.carbs - (item.fiber || 0));
+    var netCscaled = Math.max(0, Math.round(netC * m));
+    html += '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px;font-size:10px;">';
+    html += '<span style="color:var(--silver-dim);">' + cal + ' cal</span>';
+    html += '<span style="color:#4affb0;">' + pro + 'g pro</span>';
+    html += '<span style="color:#ff9a4a;">' + fat + 'g fat</span>';
+    html += '<span style="color:var(--silver-dim);">fiber ' + Math.round((item.fiber||0)*m) + 'g</span>';
+    html += '<span style="color:var(--accent);">net carbs ' + netCscaled + 'g</span>';
+    html += '</div>';
     html += '</div></div>';
   });
   list.innerHTML = html;
@@ -3052,15 +3259,16 @@ function saveScanResult() {
   saveState();
   renderCarbScanHistory();
   toast('Meal saved!');
+  showSaveConfirm();
   resetCarbScan();
 }
 
 function deleteScanResult(scanId) {
+  scanId = String(scanId);
   var idx = -1;
   for (var i = 0; i < state.carbScans.length; i++) {
-    if (state.carbScans[i].id === scanId) { idx = i; break; }
+    if (String(state.carbScans[i].id) === scanId) { idx = i; break; }
   }
-  // Fallback: numeric index for old scans without IDs
   if (idx === -1) {
     var numIdx = parseInt(scanId);
     if (!isNaN(numIdx) && numIdx >= 0 && numIdx < state.carbScans.length) {
@@ -3072,6 +3280,8 @@ function deleteScanResult(scanId) {
     saveState();
     renderCarbScanHistory();
     toast('Meal removed');
+  } else {
+    toast('Meal not found');
   }
 }
 
@@ -3164,7 +3374,7 @@ function renderCarbScanHistory() {
     html += '</div></div>';
 
     // Delete button — right aligned
-    html += '<button onclick="deleteScanResult(' + deleteKey + ')" style="flex-shrink:0;align-self:center;background:rgba(255,74,106,0.15);border:1px solid rgba(255,74,106,0.35);color:var(--danger);border-radius:6px;padding:6px 10px;font-size:11px;font-weight:700;cursor:pointer;font-family:Montserrat,sans-serif;letter-spacing:0.5px;">Remove</button>';
+    html += '<button onclick="deleteScanResult(\'' + (scan.id || idx) + '\')" style="flex-shrink:0;align-self:center;background:rgba(255,74,106,0.15);border:1px solid rgba(255,74,106,0.35);color:var(--danger);border-radius:6px;padding:6px 10px;font-size:11px;font-weight:700;cursor:pointer;font-family:Montserrat,sans-serif;letter-spacing:0.5px;">Remove</button>';
 
     html += '</div></div>';
   });
@@ -3272,7 +3482,7 @@ function importData(event) {
       var parsed = JSON.parse(e.target.result);
 
       // Validate it's a Health Binder backup
-      if (!parsed.appName || parsed.appName !== 'Health Binder') {
+      if (!parsed.appName || !parsed.appName.toLowerCase().includes('health')) {
         throw new Error('Not a valid Health Binder backup file');
       }
       if (!parsed.data) {
@@ -3310,20 +3520,21 @@ function importData(event) {
 
       saveState();
 
-      // Re-render all pages
-      renderDashboard();
-      renderWeightHistory();
-      renderPhotos();
-      renderHabits();
-      renderGlucose();
-      renderReflections();
-      if (typeof renderCarbScanHistory === 'function') renderCarbScanHistory();
+      // Re-render all pages — wrap each in try/catch so one failing render
+      // does not cause a false import-failed error message
+      try { renderDashboard(); } catch(e) {}
+      try { renderWeightHistory(); } catch(e) {}
+      try { renderPhotos(); } catch(e) {}
+      try { renderHabits(); } catch(e) {}
+      try { renderGlucose(); } catch(e) {}
+      try { renderReflections(); } catch(e) {}
+      try { renderCarbScanHistory(); } catch(e) {}
 
       if (status) {
-        status.textContent = 'Backup restored successfully from ' + exportDate;
+        status.textContent = 'Backup restored from ' + exportDate + ' — all data loaded successfully';
         status.style.color = 'var(--success)';
       }
-      toast('Data restored! ' + weightCount + ' weights and ' + photoCount + ' photos loaded');
+      toast('Restored! ' + weightCount + ' weights, ' + photoCount + ' photos loaded');
 
     } catch(err) {
       if (status) {
