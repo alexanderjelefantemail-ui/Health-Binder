@@ -330,13 +330,68 @@
   .step-num { font-family: 'Bebas Neue', sans-serif; font-size: 16px; color: var(--accent); min-width: 20px; }
 
   /* ── TOAST ── */
+  /* ── SAVE CONFIRMATION BANNER ── */
   .toast {
-    position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%) translateY(20px);
-    background: var(--accent); color: white; padding: 10px 20px; border-radius: 20px;
-    font-size: 13px; font-weight: 600; opacity: 0; transition: all 0.3s; z-index: 999;
-    white-space: nowrap; pointer-events: none;
+    position: fixed;
+    top: -90px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: linear-gradient(135deg, #1a8a5a, #0f5c3a);
+    color: white;
+    padding: 14px 24px 14px 18px;
+    border-radius: 12px;
+    border: 1px solid rgba(74,255,176,0.5);
+    font-family: 'Montserrat', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    opacity: 0;
+    transition: top 0.35s cubic-bezier(0.34,1.56,0.64,1), opacity 0.25s ease;
+    z-index: 9999;
+    pointer-events: none;
+    white-space: nowrap;
+    box-shadow: 0 6px 24px rgba(0,0,0,0.5);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 200px;
+    justify-content: center;
   }
-  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  .toast::before {
+    content: '✓';
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: rgba(74,255,176,0.25);
+    border: 1.5px solid rgba(74,255,176,0.7);
+    font-size: 13px;
+    flex-shrink: 0;
+  }
+  .toast.show {
+    top: 16px;
+    opacity: 1;
+  }
+  .toast.error {
+    background: linear-gradient(135deg, #8a1a2a, #5c0f18);
+    border-color: rgba(255,74,106,0.5);
+  }
+  .toast.error::before { content: '✕'; border-color: rgba(255,74,106,0.7); background: rgba(255,74,106,0.15); }
+
+  /* ── BUTTON SAVE STATE ── */
+  .btn-saving {
+    opacity: 0.7 !important;
+    transform: scale(0.97) !important;
+    pointer-events: none !important;
+  }
+  .btn-saved {
+    background: linear-gradient(135deg, #1a8a5a, #0f5c3a) !important;
+    border-color: rgba(74,255,176,0.5) !important;
+    color: white !important;
+    transform: scale(1) !important;
+  }
 
   /* ── SECTION DIVIDER ── */
   .section-divider { display: flex; align-items: center; gap: 10px; margin: 18px 0 12px; }
@@ -584,7 +639,7 @@
     <input type="number" id="quickWeight" placeholder="e.g. 212.5" step="0.1">
     <label>Notes</label>
     <input type="text" id="quickNote" placeholder="How are you feeling?">
-    <button class="btn btn-primary" onclick="logWeight()">Log Weight</button>
+    <button class="btn btn-primary" id="btnLogWeight" onclick="logWeight()">Log Weight</button>
   </div>
 
   <div class="card">
@@ -697,7 +752,7 @@
     <div id="photoPreviewWrap" style="display:none;margin-top:12px;">
       <img id="photoPreview" style="width:100%;border-radius:8px;max-height:260px;object-fit:cover;display:block;">
       <div style="display:flex;gap:8px;margin-top:10px;">
-        <button class="btn btn-primary" style="margin-top:0;" onclick="savePhoto()">Save Photo</button>
+        <button class="btn btn-primary" id="btnSavePhoto" style="margin-top:0;" onclick="savePhoto()">Save Photo</button>
         <button class="btn" style="margin-top:0;background:var(--navy-light);border:1px solid var(--border);color:var(--silver);flex:1;" onclick="clearPhotoPreview()">Retake</button>
       </div>
     </div>
@@ -744,7 +799,7 @@
   <div class="card" style="padding:12px 14px;">
     <div style="display:flex;justify-content:space-between;align-items:center;">
       <div id="glucoseWeekLabel" style="font-size:12px;color:var(--accent);font-weight:600;"></div>
-      <button class="btn-sm" onclick="saveGlucose()" style="background:var(--accent);color:white;border:none;padding:8px 16px;font-size:11px;">Save All</button>
+      <button class="btn-sm" id="btnSaveGlucose" onclick="saveGlucose()" style="background:var(--accent);color:white;border:none;padding:8px 16px;font-size:11px;">Save All</button>
     </div>
   </div>
 
@@ -878,7 +933,7 @@
     <textarea id="r4" placeholder="Write your thoughts..."></textarea>
     <div class="reflection-q" style="margin-top:12px;">What should you repeat next week?</div>
     <textarea id="r5" placeholder="Write your thoughts..."></textarea>
-    <button class="btn btn-primary" onclick="saveReflection()">Save Reflection</button>
+    <button class="btn btn-primary" id="btnSaveReflection" onclick="saveReflection()">Save Reflection</button>
   </div>
   <div class="card">
     <div class="card-title">Past Reflections</div>
@@ -979,7 +1034,7 @@
     </div>
     <div id="scanCarbTarget" style="margin-top:10px;font-size:12px;color:var(--silver-dim);text-align:center;line-height:1.6;"></div>
     <div style="display:flex;gap:8px;margin-top:14px;">
-      <button class="btn btn-primary" style="margin-top:0;" onclick="saveScanResult()">Save Meal</button>
+      <button class="btn btn-primary" id="btnSaveMeal" style="margin-top:0;" onclick="saveScanResult()">Save Meal</button>
       <button class="btn" style="margin-top:0;background:var(--navy-light);border:1px solid var(--border);color:var(--silver);flex:1;" onclick="resetCarbScan()">Clear</button>
     </div>
   </div>
@@ -1138,23 +1193,69 @@ function loadState() {
 function saveState() { localStorage.setItem('wl_binder_v2', JSON.stringify(state)); }
 
 // ═══════════════════════════ UTILS ═══════════════════════════
-function showSaveConfirm() {
-  // Visual flash on header to confirm data was saved to phone
-  var header = document.querySelector('.app-header');
-  if (!header) return;
-  header.style.transition = 'background 0.2s';
-  header.style.background = 'linear-gradient(135deg, rgba(74,255,176,0.3), rgba(10,34,64,1))';
-  setTimeout(function() {
-    header.style.background = '';
-    setTimeout(function() { header.style.transition = ''; }, 300);
-  }, 600);
+// ── SAVE CONFIRMATION SYSTEM ──
+var toastTimer = null;
+var toastHideTimer = null;
+
+function toast(msg, isError) {
+  var t = document.getElementById('toast');
+  if (!t) return;
+
+  // Clear any running timers
+  if (toastTimer) clearTimeout(toastTimer);
+  if (toastHideTimer) clearTimeout(toastHideTimer);
+
+  // Set message and type
+  t.textContent = msg;
+  if (isError) {
+    t.classList.add('error');
+  } else {
+    t.classList.remove('error');
+  }
+
+  // Show
+  t.classList.remove('show');
+  // Force reflow so animation replays cleanly
+  void t.offsetHeight;
+  t.classList.add('show');
+
+  // Hide after delay
+  toastHideTimer = setTimeout(function() {
+    t.classList.remove('show');
+  }, isError ? 3000 : 2500);
 }
 
-function toast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 2200);
+function showSaveConfirm() {
+  // Called after every successful save — shows the banner
+  // (toast is called separately with the message)
+}
+
+function saveBtnFeedback(btnEl, savedLabel) {
+  // Visually depress button, change to saved state, then restore
+  if (!btnEl) return;
+  var originalText = btnEl.innerHTML;
+  var originalBg = btnEl.style.background;
+  var originalBorder = btnEl.style.border;
+  var originalColor = btnEl.style.color;
+
+  // Depress immediately
+  btnEl.classList.add('btn-saving');
+
+  setTimeout(function() {
+    // Show saved state
+    btnEl.classList.remove('btn-saving');
+    btnEl.classList.add('btn-saved');
+    btnEl.innerHTML = '&#10003; ' + (savedLabel || 'Saved!');
+
+    // Restore after 1.8s
+    setTimeout(function() {
+      btnEl.classList.remove('btn-saved');
+      btnEl.innerHTML = originalText;
+      if (originalBg) btnEl.style.background = originalBg;
+      if (originalBorder) btnEl.style.border = originalBorder;
+      if (originalColor) btnEl.style.color = originalColor;
+    }, 1800);
+  }, 120);
 }
 function todayStr() { return new Date().toISOString().slice(0, 10); }
 function weekStart(dateStr) {
@@ -1200,6 +1301,7 @@ function logWeight() {
   document.getElementById('quickWeight').value = '';
   document.getElementById('quickNote').value = '';
   renderDashboard();
+  saveBtnFeedback(document.getElementById('btnLogWeight'), 'Weight Logged');
   toast('Weight logged!');
 }
 
@@ -1218,8 +1320,8 @@ function addWeightEntry() {
   document.getElementById('wNote').value = '';
   renderWeightHistory();
   renderDashboard();
+  saveBtnFeedback(document.getElementById('btnAddEntry'), 'Entry Saved');
   toast('Weight entry saved!');
-  showSaveConfirm();
 }
 
 function deleteWeight(date) {
@@ -1427,8 +1529,8 @@ function savePhoto() {
   document.getElementById('photoFileInput').value = '';
 
   renderPhotos();
+  saveBtnFeedback(document.getElementById('btnSavePhoto'), 'Photo Saved');
   toast('Photo saved!');
-  showSaveConfirm();
 }
 
 function deletePhoto(photoId) {
@@ -1513,7 +1615,7 @@ function toggleHabit(week, key, btn) {
   btn.classList.toggle('checked', !cur);
   btn.textContent = !cur ? 'v' : '';
   saveState();
-  showSaveConfirm();
+  toast('Habit saved!');
 }
 
 function showHabitWeek(week) {
@@ -1632,8 +1734,8 @@ function saveGlucose() {
   });
   saveState();
   renderGlucoseChart(week, state.glucose[week]);
+  saveBtnFeedback(document.getElementById('btnSaveGlucose'), 'Saved');
   toast('Glucose log saved!');
-  showSaveConfirm();
 }
 
 function renderGlucoseChart(week, gData) {
@@ -3258,8 +3360,8 @@ function saveScanResult() {
   if (state.carbScans.length > 50) state.carbScans = state.carbScans.slice(0, 50);
   saveState();
   renderCarbScanHistory();
+  saveBtnFeedback(document.getElementById('btnSaveMeal'), 'Meal Saved');
   toast('Meal saved!');
-  showSaveConfirm();
   resetCarbScan();
 }
 
