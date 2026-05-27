@@ -1190,7 +1190,36 @@ function loadState() {
   const saved = localStorage.getItem('wl_binder_v2');
   if (saved) { try { state = JSON.parse(saved); } catch(e) {} }
 }
-function saveState() { localStorage.setItem('wl_binder_v2', JSON.stringify(state)); }
+function saveState() {
+  try {
+    localStorage.setItem('wl_binder_v2', JSON.stringify(state));
+  } catch(e) {
+    // localStorage quota exceeded — photos are the likely cause
+    // Try saving without photo data as a fallback
+    if (e.name === 'QuotaExceededError' || e.code === 22) {
+      try {
+        var slim = JSON.parse(JSON.stringify(state));
+        // Strip full photo data but keep metadata
+        if (slim.photos) {
+          slim.photos = slim.photos.map(function(p) {
+            return { id: p.id, date: p.date, weight: p.weight, label: p.label, data: '' };
+          });
+        }
+        if (slim.carbScans) {
+          slim.carbScans = slim.carbScans.map(function(s) {
+            return { id: s.id, date: s.date, time: s.time, image: '', foods: s.foods, totals: s.totals };
+          });
+        }
+        localStorage.setItem('wl_binder_v2', JSON.stringify(slim));
+        toast('Storage full — photos not saved. Export a backup to keep your photos.', true);
+      } catch(e2) {
+        toast('Storage full. Please export a backup and clear old data.', true);
+      }
+    } else {
+      toast('Save failed: ' + e.message, true);
+    }
+  }
+}
 
 // ═══════════════════════════ UTILS ═══════════════════════════
 // ── SAVE CONFIRMATION SYSTEM ──
@@ -1476,18 +1505,46 @@ function handlePhotoSelected(event) {
 
   var reader = new FileReader();
   reader.onload = function(e) {
-    pendingPhotoData = e.target.result;
-    document.getElementById('photoPreview').src = pendingPhotoData;
-    document.getElementById('photoPreviewWrap').style.display = 'block';
-    document.getElementById('timerOptions').style.display = 'none';
-    document.getElementById('photoTimerWrap').style.display = 'none';
-    document.getElementById('photoPreviewWrap').scrollIntoView({behavior:'smooth', block:'nearest'});
+    // Compress the photo before storing — reduces 2MB iPhone photo to ~80KB
+    compressPhoto(e.target.result, 800, 0.65, function(compressed) {
+      pendingPhotoData = compressed;
+      document.getElementById('photoPreview').src = compressed;
+      document.getElementById('photoPreviewWrap').style.display = 'block';
+      document.getElementById('timerOptions').style.display = 'none';
+      document.getElementById('photoTimerWrap').style.display = 'none';
+      document.getElementById('photoPreviewWrap').scrollIntoView({behavior:'smooth', block:'nearest'});
+    });
   };
   reader.onerror = function() {
     photoHandlerLocked = false;
     toast('Could not load photo. Try again.');
   };
   reader.readAsDataURL(file);
+}
+
+function compressPhoto(dataUrl, maxWidth, quality, callback) {
+  var img = new Image();
+  img.onload = function() {
+    var canvas = document.createElement('canvas');
+    var w = img.width;
+    var h = img.height;
+    // Scale down if wider than maxWidth
+    if (w > maxWidth) {
+      h = Math.round(h * maxWidth / w);
+      w = maxWidth;
+    }
+    canvas.width = w;
+    canvas.height = h;
+    var ctx = canvas.getContext('2d');
+    ctx.drawImage(img, 0, 0, w, h);
+    var compressed = canvas.toDataURL('image/jpeg', quality);
+    callback(compressed);
+  };
+  img.onerror = function() {
+    // Fallback: use original if compression fails
+    callback(dataUrl);
+  };
+  img.src = dataUrl;
 }
 
 function clearPhotoPreview() {
@@ -2708,15 +2765,18 @@ function handleCarbPhoto(event) {
 
   var reader = new FileReader();
   reader.onload = function(e) {
-    scanPhoto = e.target.result;
-    var preview = document.getElementById('carbScanPreview');
-    preview.src = scanPhoto;
-    preview.style.display = 'block';
-    document.getElementById('scanPhotoIcon').style.display = 'none';
-    document.getElementById('scanPhotoLabel').textContent = 'Photo saved. Tap again to change.';
-    document.getElementById('scanPhotoLabel').style.color = 'var(--success)';
-    document.getElementById('recognitionResults').style.display = 'none';
-    runPhotoRecognition(preview);
+    // Compress carb scan photos to save storage space
+    compressPhoto(e.target.result, 600, 0.60, function(compressed) {
+      scanPhoto = compressed;
+      var preview = document.getElementById('carbScanPreview');
+      preview.src = compressed;
+      preview.style.display = 'block';
+      document.getElementById('scanPhotoIcon').style.display = 'none';
+      document.getElementById('scanPhotoLabel').textContent = 'Photo saved. Tap again to change.';
+      document.getElementById('scanPhotoLabel').style.color = 'var(--success)';
+      document.getElementById('recognitionResults').style.display = 'none';
+      runPhotoRecognition(preview);
+    });
   };
   reader.onerror = function() {
     carbPhotoLocked = false;
@@ -3639,11 +3699,21 @@ function importData(event) {
       toast('Restored! ' + weightCount + ' weights, ' + photoCount + ' photos loaded');
 
     } catch(err) {
+      var errMsg = err.message || 'Unknown error';
+      // Quota errors are misleading — data may have partially restored
+      if (errMsg.toLowerCase().includes('quota') || err.name === 'QuotaExceededError') {
+        errMsg = 'Storage full — your weights, glucose, and habits were restored. Photos could not be saved due to storage limits. Export backup regularly to keep photos safe.';
+        // Re-render what we have even after quota error
+        try { renderDashboard(); } catch(e2) {}
+        try { renderWeightHistory(); } catch(e2) {}
+        try { renderGlucose(); } catch(e2) {}
+        try { renderHabits(); } catch(e2) {}
+      }
       if (status) {
-        status.textContent = 'Import failed: ' + err.message;
+        status.textContent = errMsg;
         status.style.color = 'var(--danger)';
       }
-      toast('Import failed - invalid backup file');
+      toast('Import warning: ' + (err.name === 'QuotaExceededError' ? 'Storage full — data partially restored' : 'Check backup file'), true);
     }
     // Reset file input
     document.getElementById('importFileInput').value = '';
