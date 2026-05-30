@@ -12,18 +12,18 @@
     --navy: #0a1628;
     --navy-mid: #122040;
     --navy-light: #1a3060;
-    --silver: #c0cfe0;
-    --silver-bright: #e8f0f8;
-    --silver-dim: #7a94b0;
+    --silver: #eef5ff;
+    --silver-bright: #ffffff;
+    --silver-dim: #ddeeff;
     --accent: #4a9eff;
     --accent-glow: rgba(74,158,255,0.3);
     --gold: #f0c040;
     --white: #ffffff;
     --danger: #ff4a6a;
     --success: #4affb0;
-    --text: #e0ecff;
+    --text: #f5faff;
     --card: rgba(20,45,90,0.85);
-    --border: rgba(192,207,224,0.2);
+    --border: rgba(192,207,224,0.28);
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
@@ -55,7 +55,7 @@
     color: var(--silver-bright);
     text-shadow: 0 0 20px var(--accent-glow);
   }
-  .app-header p { font-size: 11px; color: var(--silver-dim); letter-spacing: 1px; margin-top: 1px; }
+  .app-header p { font-size: 13px; color: var(--silver-dim); letter-spacing: 1px; margin-top: 1px; }
 
   /* ── NAV TABS ── */
   .nav-tabs {
@@ -73,9 +73,9 @@
     flex: 0 0 auto;
     padding: 10px 14px;
     font-family: 'Montserrat', sans-serif;
-    font-size: 11px;
+    font-size: 14px;
     font-weight: 600;
-    letter-spacing: 0.8px;
+    letter-spacing: 0.5px;
     color: var(--silver-dim);
     background: none;
     border: none;
@@ -132,7 +132,7 @@
     line-height: 1;
     text-shadow: 0 0 16px var(--accent-glow);
   }
-  .stat-box .stat-lbl { font-size: 10px; letter-spacing: 1px; color: var(--silver-dim); margin-top: 4px; text-transform: uppercase; }
+  .stat-box .stat-lbl { font-size: 13px; letter-spacing: 0.8px; color: var(--silver); margin-top: 4px; text-transform: uppercase; }
   .stat-box.goal .stat-val { color: var(--gold); text-shadow: 0 0 16px rgba(240,192,64,0.3); }
   .stat-box.lost .stat-val { color: var(--success); text-shadow: 0 0 16px rgba(74,255,176,0.3); }
 
@@ -145,10 +145,10 @@
     transition: width 0.6s ease;
     box-shadow: 0 0 10px var(--accent-glow);
   }
-  .progress-label { font-size: 11px; color: var(--silver-dim); text-align: right; margin-top: 4px; }
+  .progress-label { font-size: 14px; color: var(--silver-dim); text-align: right; margin-top: 4px; }
 
   /* ── FORMS ── */
-  label { font-size: 11px; letter-spacing: 1px; color: var(--silver-dim); text-transform: uppercase; display: block; margin-bottom: 5px; margin-top: 10px; }
+  label { font-size: 13px; letter-spacing: 0.8px; color: var(--silver-dim); text-transform: uppercase; display: block; margin-bottom: 5px; margin-top: 10px; }
   input[type=text], input[type=number], input[type=date], select, textarea {
     width: 100%;
     background: rgba(10,22,40,0.8);
@@ -173,7 +173,7 @@
     border: none;
     font-family: 'Montserrat', sans-serif;
     font-weight: 700;
-    font-size: 13px;
+    font-size: 15px;
     letter-spacing: 1px;
     cursor: pointer;
     text-transform: uppercase;
@@ -224,14 +224,14 @@
   .meal-day:last-child { border-bottom: none; }
   .meal-day-name { font-family: 'Bebas Neue', sans-serif; font-size: 15px; letter-spacing: 2px; color: var(--accent); margin-bottom: 8px; }
   .meal-row { display: flex; gap: 8px; margin-bottom: 6px; align-items: flex-start; }
-  .meal-type { font-size: 10px; font-weight: 700; color: var(--gold); letter-spacing: 1px; text-transform: uppercase; min-width: 66px; padding-top: 1px; }
-  .meal-desc { font-size: 13px; color: var(--silver-bright); line-height: 1.4; }
+  .meal-type { font-size: 12px; font-weight: 700; color: var(--gold); letter-spacing: 1px; text-transform: uppercase; min-width: 66px; padding-top: 1px; }
+  .meal-desc { font-size: 14px; color: var(--silver-bright); line-height: 1.4; }
 
   /* ── TRACKER TABLE ── */
   .track-row { display: grid; grid-template-columns: 60px repeat(4, 1fr); gap: 6px; align-items: center; margin-bottom: 6px; }
   .track-row.header { margin-bottom: 8px; }
-  .track-row.header span { font-size: 9px; font-weight: 700; letter-spacing: 0.8px; color: var(--silver-dim); text-transform: uppercase; text-align: center; }
-  .track-day { font-size: 12px; font-weight: 700; color: var(--silver); }
+  .track-row.header span { font-size: 11px; font-weight: 700; letter-spacing: 0.8px; color: var(--silver); text-transform: uppercase; text-align: center; }
+  .track-day { font-size: 14px; font-weight: 700; color: var(--silver); }
   .check-btn {
     width: 32px; height: 32px; border-radius: 6px; border: 1.5px solid var(--border);
     background: var(--navy-mid); color: var(--silver-dim); cursor: pointer;
@@ -245,14 +245,14 @@
   .gluc-day-header { background:linear-gradient(90deg,rgba(74,158,255,0.12),transparent);padding:10px 14px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border); }
   .gluc-day-name { font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:2px;color:var(--accent); }
   .gluc-day-body { padding:12px 14px; }
-  .gluc-section-label { font-size:9px;font-weight:700;letter-spacing:1.5px;color:var(--gold);text-transform:uppercase;margin:12px 0 6px; }
+  .gluc-section-label { font-size:11px;font-weight:700;letter-spacing:1.5px;color:var(--gold);text-transform:uppercase;margin:12px 0 6px; }
   .gluc-row { display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px; }
   .gluc-row-3 { display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:8px; }
-  .gluc-field label { font-size:10px;color:var(--silver-dim);letter-spacing:0.5px;display:block;margin-bottom:4px; }
-  .gluc-field input { width:100%;background:rgba(10,22,40,0.8);border:1px solid var(--border);border-radius:6px;color:var(--white);font-family:'Montserrat',sans-serif;font-size:13px;padding:8px 10px;outline:none; }
+  .gluc-field label { font-size:14px;color:var(--silver-dim);letter-spacing:0.5px;display:block;margin-bottom:4px; }
+  .gluc-field input { width:100%;background:rgba(10,22,40,0.8);border:1px solid var(--border);border-radius:6px;color:var(--white);font-family:'Montserrat',sans-serif;font-size:14px;padding:8px 10px;outline:none; }
   .gluc-field input:focus { border-color:var(--accent); }
   .hypo-row { display:flex;gap:10px;flex-wrap:wrap;margin-bottom:4px; }
-  .hypo-check { display:flex;align-items:center;gap:6px;cursor:pointer;padding:7px 12px;background:rgba(255,74,106,0.07);border:1px solid rgba(255,74,106,0.2);border-radius:6px;font-size:12px;color:var(--silver-bright); }
+  .hypo-check { display:flex;align-items:center;gap:6px;cursor:pointer;padding:8px 12px;background:rgba(255,74,106,0.07);border:1px solid rgba(255,74,106,0.2);border-radius:6px;font-size:14px;color:var(--silver-bright); }
   .hypo-check input[type=checkbox] { width:16px;height:16px;accent-color:var(--danger);cursor:pointer; }
   .hypo-check.checked { background:rgba(255,74,106,0.18);border-color:var(--danger); }
   .gluc-chart-wrap { margin-top:14px;overflow-x:auto; }
@@ -266,9 +266,9 @@
   /* ── WEIGHT LOG ── */
   .weight-entry { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--border); }
   .weight-entry:last-child { border-bottom: none; }
-  .weight-entry-date { font-size: 12px; color: var(--silver-dim); flex: 0 0 80px; }
+  .weight-entry-date { font-size: 14px; color: var(--silver); flex: 0 0 80px; }
   .weight-entry-val { font-family: 'Bebas Neue', sans-serif; font-size: 22px; color: var(--white); }
-  .weight-entry-change { font-size: 12px; font-weight: 700; margin-left: auto; }
+  .weight-entry-change { font-size: 14px; font-weight: 700; margin-left: auto; }
   .weight-entry-change.neg { color: var(--success); }
   .weight-entry-change.pos { color: var(--danger); }
 
@@ -289,7 +289,7 @@
   }
   .photo-placeholder .cam-icon { font-size: 28px; }
   .photo-meta { padding: 8px 10px; }
-  .photo-meta .photo-date { font-size: 10px; color: var(--silver-dim); letter-spacing: 1px; }
+  .photo-meta .photo-date { font-size: 14px; color: var(--silver-dim); letter-spacing: 1px; }
   .photo-meta .photo-weight { font-family: 'Bebas Neue', sans-serif; font-size: 18px; color: var(--accent); }
   .photo-actions { display: flex; gap: 6px; padding: 0 10px 8px; }
   #photoFileInput { display: none; }
@@ -297,14 +297,14 @@
   /* ── SNACKS PAGE ── */
   .snack-cat { margin-bottom: 14px; }
   .snack-cat-title { font-family: 'Bebas Neue', sans-serif; font-size: 14px; letter-spacing: 2px; color: var(--gold); margin-bottom: 6px; }
-  .snack-item { font-size: 13px; color: var(--silver-bright); padding: 5px 0; border-bottom: 1px solid rgba(192,207,224,0.08); display: flex; align-items: center; gap: 8px; }
+  .snack-item { font-size: 15px; color: var(--silver-bright); padding: 5px 0; border-bottom: 1px solid rgba(192,207,224,0.08); display: flex; align-items: center; gap: 8px; }
   .snack-item::before { content: '◆'; font-size: 7px; color: var(--accent); flex-shrink: 0; }
 
   /* ── EXERCISE ── */
   .phase-card { border-left: 3px solid var(--accent); padding-left: 14px; margin-bottom: 16px; }
   .phase-title { font-family: 'Bebas Neue', sans-serif; font-size: 16px; letter-spacing: 2px; color: var(--silver-bright); }
-  .phase-sub { font-size: 11px; color: var(--silver-dim); margin-bottom: 8px; letter-spacing: 0.5px; }
-  .phase-item { font-size: 13px; color: var(--silver-bright); padding: 4px 0; }
+  .phase-sub { font-size: 13px; color: var(--silver-dim); margin-bottom: 8px; letter-spacing: 0.5px; }
+  .phase-item { font-size: 15px; color: var(--silver-bright); padding: 4px 0; }
   .phase-item::before { content: '→ '; color: var(--accent); }
 
   /* ── CARB GUIDE ── */
@@ -324,9 +324,9 @@
   .recipe-body { display: none; padding: 14px 16px; background: var(--card); }
   .recipe-body.open { display: block; }
   .recipe-section { font-size: 11px; font-weight: 700; letter-spacing: 1px; color: var(--gold); text-transform: uppercase; margin: 10px 0 5px; }
-  .recipe-body li { font-size: 13px; color: var(--silver-bright); padding: 3px 0; list-style: none; padding-left: 14px; position: relative; }
+  .recipe-body li { font-size: 15px; color: var(--silver-bright); padding: 3px 0; list-style: none; padding-left: 14px; position: relative; }
   .recipe-body li::before { content: '·'; position: absolute; left: 4px; color: var(--accent); }
-  .recipe-step { font-size: 13px; color: var(--silver-bright); padding: 4px 0; display: flex; gap: 10px; }
+  .recipe-step { font-size: 15px; color: var(--silver-bright); padding: 4px 0; display: flex; gap: 10px; }
   .step-num { font-family: 'Bebas Neue', sans-serif; font-size: 16px; color: var(--accent); min-width: 20px; }
 
   /* ── TOAST ── */
@@ -395,11 +395,11 @@
 
   /* ── SECTION DIVIDER ── */
   .section-divider { display: flex; align-items: center; gap: 10px; margin: 18px 0 12px; }
-  .section-divider span { font-family: 'Bebas Neue', sans-serif; font-size: 13px; letter-spacing: 2px; color: var(--silver-dim); white-space: nowrap; }
+  .section-divider span { font-family: 'Bebas Neue', sans-serif; font-size: 13px; letter-spacing: 2px; color: var(--silver); white-space: nowrap; }
   .section-divider::before, .section-divider::after { content: ''; flex: 1; height: 1px; background: var(--border); }
 
   /* ── REFLECTION ── */
-  .reflection-q { font-size: 13px; color: var(--silver); margin-bottom: 4px; font-weight: 600; }
+  .reflection-q { font-size: 15px; color: var(--silver); margin-bottom: 4px; font-weight: 600; }
 
   /* bottom safe area */
   .page-footer { height: 32px; }
@@ -412,7 +412,7 @@
   .photo-btn:active { opacity:0.7;transform:scale(0.97); }
   .timer-wrap { display:none;text-align:center;padding:16px;background:rgba(10,22,40,0.9);border-radius:10px;margin-top:10px;border:1px solid var(--border); }
   .timer-countdown { font-family:'Bebas Neue',sans-serif;font-size:72px;color:var(--accent);line-height:1;text-shadow:0 0 30px rgba(74,158,255,0.5); }
-  .timer-label { font-size:12px;color:var(--silver-dim);letter-spacing:2px;margin-top:4px;text-transform:uppercase; }
+  .timer-label { font-size:14px;color:var(--silver-dim);letter-spacing:2px;margin-top:4px;text-transform:uppercase; }
   .timer-cancel { margin-top:12px;background:none;border:1px solid rgba(255,74,106,0.4);color:var(--danger);font-family:'Montserrat',sans-serif;font-size:11px;font-weight:600;padding:7px 20px;border-radius:6px;cursor:pointer;letter-spacing:1px;text-transform:uppercase; }
 
   /* ── CARB SCANNER ── */
@@ -428,7 +428,7 @@
   }
   .scan-upload-box:active { border-color: var(--accent); background: rgba(74,158,255,0.08); }
   .scan-upload-box .scan-icon { font-size: 44px; margin-bottom: 8px; }
-  .scan-upload-box .scan-label { font-size: 13px; color: var(--silver-dim); }
+  .scan-upload-box .scan-label { font-size: 14px; color: var(--silver); }
   .scan-upload-box .scan-label strong { color: var(--accent); }
   .scan-preview { width: 100%; border-radius: 10px; max-height: 260px; object-fit: cover; display: block; margin-bottom: 14px; }
   .scan-result-strip {
@@ -445,12 +445,12 @@
   .scan-result-lbl { font-size: 9px; letter-spacing: 0.8px; color: var(--silver-dim); text-transform: uppercase; margin-top: 3px; }
   .food-item-row { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--border); }
   .food-item-row:last-child { border-bottom: none; }
-  .food-item-name { flex: 1; font-size: 13px; color: var(--silver-bright); }
-  .food-item-portion { font-size: 11px; color: var(--silver-dim); }
+  .food-item-name { flex: 1; font-size: 15px; color: var(--silver-bright); }
+  .food-item-portion { font-size: 13px; color: var(--silver-dim); }
   .food-item-carb { font-family: 'Bebas Neue', sans-serif; font-size: 18px; color: var(--gold); min-width: 44px; text-align: right; }
   .scan-history-row { border-bottom: 1px solid var(--border); padding: 10px 0; }
   .scan-history-row:last-child { border-bottom: none; }
-  .scan-history-date { font-size: 10px; color: var(--silver-dim); letter-spacing: 1px; margin-bottom: 4px; }
+  .scan-history-date { font-size: 14px; color: var(--silver-dim); letter-spacing: 1px; margin-bottom: 4px; }
   .scan-history-foods { font-size: 12px; color: var(--silver-bright); }
   .scan-history-carbs { font-family: 'Bebas Neue', sans-serif; font-size: 20px; color: var(--gold); }
   .diabetes-alert {
@@ -527,7 +527,7 @@
   }
   .nutr-val { font-family: 'Bebas Neue', sans-serif; font-size: 28px; color: var(--accent); line-height: 1; }
   .nutr-lbl { font-size: 9px; letter-spacing: 0.8px; color: var(--silver-dim); text-transform: uppercase; margin-top: 3px; }
-  .nutr-unit { font-size: 10px; color: var(--silver-dim); }
+  .nutr-unit { font-size: 14px; color: var(--silver-dim); }
 
   /* Ingredient table */
   .ing-table { width: 100%; border-collapse: collapse; margin-bottom: 14px; }
@@ -548,7 +548,7 @@
     font-family: 'Bebas Neue', sans-serif; font-size: 20px; color: var(--accent);
     min-width: 24px; line-height: 1.1;
   }
-  .modal-step-text { font-size: 13px; color: var(--silver-bright); line-height: 1.55; }
+  .modal-step-text { font-size: 15px; color: var(--silver-bright); line-height: 1.55; }
   .modal-tip {
     background: rgba(240,192,64,0.08); border-left: 3px solid var(--gold);
     border-radius: 0 6px 6px 0; padding: 10px 12px; margin-top: 14px;
@@ -568,7 +568,7 @@
     animation: spin 0.8s linear infinite;
   }
   @keyframes spin { to { transform: rotate(360deg); } }
-  .loading-text { font-size: 13px; color: var(--silver-dim); letter-spacing: 1px; }
+  .loading-text { font-size: 14px; color: var(--silver-dim); letter-spacing: 1px; }
 
   /* Tappable meal name */
   .meal-desc-link {
@@ -581,7 +581,7 @@
   .meal-desc-link:active { color: var(--accent); }
   
   /* week selector */
-  .current-week-info { background: linear-gradient(90deg, rgba(74,158,255,0.1), transparent); border-left: 3px solid var(--accent); padding: 10px 14px; border-radius: 0 8px 8px 0; margin-bottom: 14px; font-size: 13px; color: var(--silver); }
+  .current-week-info { background: linear-gradient(90deg, rgba(74,158,255,0.1), transparent); border-left: 3px solid var(--accent); padding: 10px 14px; border-radius: 0 8px 8px 0; margin-bottom: 14px; font-size: 15px; color: var(--silver); }
 </style>
 </head>
 <body>
@@ -644,7 +644,7 @@
 
   <div class="card">
     <div class="card-title">Plan Overview</div>
-    <div style="font-size:13px; color:var(--silver-bright); line-height:1.7;">
+    <div style="font-size:15px; color:var(--silver-bright); line-height:1.8;">
       <strong style="color:var(--accent)">Start:</strong> 215 lbs &nbsp;|&nbsp;
       <strong style="color:var(--gold)">Goal:</strong> 165 lbs &nbsp;|&nbsp;
       <strong style="color:var(--success)">Total:</strong> 50 lbs over 6 months<br><br>
@@ -664,17 +664,17 @@
       <strong style="color:var(--accent)">Export</strong> opens the iOS Share Sheet so you can save your backup to <strong>iCloud Drive</strong>, <strong>Google Drive</strong>, <strong>Dropbox</strong>, email it to yourself, or AirDrop it to your Mac — you choose where it goes.<br><br>
       <strong style="color:var(--success)">Import</strong> restores from any previously exported backup file.
     </div>
-    <button onclick="exportData()" style="width:100%;background:linear-gradient(135deg,rgba(74,158,255,0.25),rgba(74,158,255,0.12));border:1px solid rgba(74,158,255,0.5);color:var(--accent);font-family:Montserrat,sans-serif;font-size:13px;font-weight:700;letter-spacing:1px;padding:14px;border-radius:8px;cursor:pointer;text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;justify-content:center;gap:8px;">
+    <button onclick="exportData()" style="width:100%;background:linear-gradient(135deg,rgba(74,158,255,0.25),rgba(74,158,255,0.12));border:1px solid rgba(74,158,255,0.5);color:var(--accent);font-family:Montserrat,sans-serif;font-size:15px;font-weight:700;letter-spacing:1px;padding:14px;border-radius:8px;cursor:pointer;text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;justify-content:center;gap:8px;">
       <span style="font-size:18px;">&#8681;</span> Export &amp; Share Backup
     </button>
-    <button onclick="document.getElementById('importFileInput').click()" style="width:100%;background:linear-gradient(135deg,rgba(74,255,176,0.18),rgba(74,255,176,0.08));border:1px solid rgba(74,255,176,0.4);color:var(--success);font-family:Montserrat,sans-serif;font-size:13px;font-weight:700;letter-spacing:1px;padding:14px;border-radius:8px;cursor:pointer;text-transform:uppercase;display:flex;align-items:center;justify-content:center;gap:8px;">
+    <button onclick="document.getElementById('importFileInput').click()" style="width:100%;background:linear-gradient(135deg,rgba(74,255,176,0.18),rgba(74,255,176,0.08));border:1px solid rgba(74,255,176,0.4);color:var(--success);font-family:Montserrat,sans-serif;font-size:15px;font-weight:700;letter-spacing:1px;padding:14px;border-radius:8px;cursor:pointer;text-transform:uppercase;display:flex;align-items:center;justify-content:center;gap:8px;">
       <span style="font-size:18px;">&#8679;</span> Import / Restore Backup
     </button>
     <input type="file" id="importFileInput" accept=".json,application/json" style="display:none" onchange="importData(event)">
-    <div style="background:rgba(74,158,255,0.06);border-radius:8px;padding:10px 12px;margin-top:10px;font-size:11px;color:var(--silver-dim);line-height:1.6;">
+    <div style="background:rgba(74,158,255,0.06);border-radius:8px;padding:10px 12px;margin-top:10px;font-size:13px;color:var(--silver-dim);line-height:1.6;">
       <strong style="color:var(--silver)">Tip:</strong> After tapping Export, look for <strong>Save to Files</strong> in the Share Sheet to pick iCloud Drive or any folder on your phone.
     </div>
-    <div id="backupStatus" style="font-size:11px;color:var(--silver-dim);text-align:center;min-height:16px;margin-top:8px;"></div>
+    <div id="backupStatus" style="font-size:13px;color:var(--silver-dim);text-align:center;min-height:16px;margin-top:8px;"></div>
     <div style="border-top:1px solid var(--border);margin-top:12px;padding-top:12px;text-align:center;">
       <button onclick="clearAllData()" style="background:none;border:1px solid rgba(255,74,106,0.3);color:rgba(255,74,106,0.5);font-family:Montserrat,sans-serif;font-size:10px;font-weight:600;letter-spacing:1px;padding:7px 16px;border-radius:6px;cursor:pointer;text-transform:uppercase;">
         Clear All Data &amp; Start Fresh
@@ -732,7 +732,7 @@
 
     <!-- Timer section -->
     <div class="timer-wrap" id="photoTimerWrap">
-      <div style="font-size:11px;color:var(--silver-dim);letter-spacing:1px;margin-bottom:8px;text-transform:uppercase;">Photo timer — get in position!</div>
+      <div style="font-size:13px;color:var(--silver-dim);letter-spacing:1px;margin-bottom:8px;text-transform:uppercase;">Photo timer — get in position!</div>
       <div class="timer-countdown" id="timerCountdown">10</div>
       <div class="timer-label" id="timerLabel">seconds until camera opens</div>
       <button class="timer-cancel" onclick="cancelPhotoTimer()">Cancel Timer</button>
@@ -740,7 +740,7 @@
 
     <!-- Timer duration selector -->
     <div id="timerOptions" style="margin-top:12px;display:none;text-align:center;">
-      <div style="font-size:11px;color:var(--silver-dim);margin-bottom:8px;letter-spacing:1px;text-transform:uppercase;">Timer duration</div>
+      <div style="font-size:13px;color:var(--silver-dim);margin-bottom:8px;letter-spacing:1px;text-transform:uppercase;">Timer duration</div>
       <div style="display:flex;gap:8px;justify-content:center;">
         <button onclick="startPhotoTimer(5)" style="background:var(--navy-light);border:1px solid var(--border);color:var(--silver);border-radius:6px;padding:8px 16px;font-size:13px;font-weight:700;cursor:pointer;font-family:Montserrat,sans-serif;">5s</button>
         <button onclick="startPhotoTimer(10)" style="background:var(--navy-light);border:1px solid var(--border);color:var(--silver);border-radius:6px;padding:8px 16px;font-size:13px;font-weight:700;cursor:pointer;font-family:Montserrat,sans-serif;">10s</button>
@@ -782,7 +782,7 @@
   </div>
   <div class="card">
     <div class="card-title">Habit History</div>
-    <div id="habitHistory" style="font-size:13px;color:var(--silver-dim);">Select a past week below:</div>
+    <div id="habitHistory" style="font-size:14px;color:var(--silver-dim);">Select a past week below:</div>
     <div id="habitWeekPicker" style="margin-top:10px;display:flex;flex-wrap:wrap;gap:6px;"></div>
   </div>
   <div class="page-footer"></div>
@@ -807,7 +807,7 @@
 
   <div class="card">
     <div class="card-title">Weekly Glucose Chart</div>
-    <div style="font-size:11px;color:var(--silver-dim);margin-bottom:8px;">Wake-up, Breakfast, Lunch, Dinner &amp; Bedtime readings</div>
+    <div style="font-size:13px;color:var(--silver-dim);margin-bottom:8px;">Wake-up, Breakfast, Lunch, Dinner &amp; Bedtime readings</div>
     <div class="gluc-chart-wrap">
       <canvas id="glucoseChart" class="gluc-chart-canvas"></canvas>
     </div>
@@ -822,7 +822,7 @@
 
   <div class="card">
     <div class="card-title">Bedtime Snack Guide</div>
-    <div style="font-size:13px;color:var(--silver-bright);line-height:1.9;">
+    <div style="font-size:15px;color:var(--silver-bright);line-height:1.9;">
       <span style="color:#4affb0;">&#9632;</span> <strong>Glucose high before bed:</strong> 0-5g carbs<br>
       <span style="color:#f0c040;">&#9632;</span> <strong>Trending down:</strong> 5-10g carbs + protein<br>
       <span style="color:#4a9eff;">&#9632;</span> <strong>Routine bedtime:</strong> 10-15g carbs + protein<br>
@@ -858,7 +858,7 @@
 
   <div class="card" style="background:linear-gradient(135deg,rgba(26,48,96,0.9),rgba(10,22,40,0.9));border-color:rgba(74,158,255,0.3);">
     <div style="font-size:11px;font-weight:700;letter-spacing:2px;color:var(--gold);margin-bottom:6px;text-transform:uppercase;">Your Goal</div>
-    <div style="font-size:13px;color:var(--silver-bright);line-height:1.7;">
+    <div style="font-size:15px;color:var(--silver-bright);line-height:1.7;">
       Work toward <strong style="color:var(--accent)">150 min/week</strong> of moderate aerobic activity plus muscle-strengthening on at least <strong style="color:var(--accent)">2 days/week</strong>.<br><br>
       <strong style="color:var(--gold)">Important:</strong> You have hip and back pain. Always stop if you feel sharp pain. Progress is gradual by design.
     </div>
@@ -871,7 +871,7 @@
 
   <div class="card">
     <div class="card-title">Walking Guide</div>
-    <div style="font-size:13px;color:var(--silver-bright);line-height:1.8;">
+    <div style="font-size:15px;color:var(--silver-bright);line-height:1.8;">
       Walk on flat even surfaces. Wear supportive cushioned shoes. Keep chin up, shoulders relaxed, and core gently engaged. Take shorter more frequent strides rather than long ones to reduce hip stress. Swing arms naturally.<br><br>
       <strong style="color:var(--gold)">If back or hip tightens:</strong> Stop, stand straight, do 5 slow hip circles each direction before continuing or heading home. Never push through sharp pain.
     </div>
@@ -879,7 +879,7 @@
 
   <div class="card">
     <div class="card-title">Exercise Library</div>
-    <div style="font-size:11px;color:var(--silver-dim);margin-bottom:12px;">Tap any exercise to see full instructions</div>
+    <div style="font-size:13px;color:var(--silver-dim);margin-bottom:12px;">Tap any exercise to see full instructions</div>
     <div id="exerciseLibrary"></div>
   </div>
 
@@ -902,7 +902,7 @@
     <div class="card-title">Plate Guide</div>
     <div style="text-align:center;padding:10px 0;">
       <div style="font-size:60px;">🍽</div>
-      <div style="font-size:13px;color:var(--silver-bright);line-height:1.9;margin-top:10px;">
+      <div style="font-size:15px;color:var(--silver-bright);line-height:1.9;margin-top:10px;">
         <span style="color:var(--success)">½ Plate</span> · Non-starchy vegetables<br>
         <span style="color:var(--accent)">¼ Plate</span> · Lean protein<br>
         <span style="color:var(--gold)">¼ Plate</span> · Carbohydrate food
@@ -937,7 +937,7 @@
   </div>
   <div class="card">
     <div class="card-title">Past Reflections</div>
-    <div id="pastReflections" style="font-size:13px;color:var(--silver-dim);">No reflections saved yet.</div>
+    <div id="pastReflections" style="font-size:14px;color:var(--silver-dim);">No reflections saved yet.</div>
   </div>
   <div class="page-footer"></div>
 </div>
@@ -947,7 +947,7 @@
 
   <div class="card" style="background:linear-gradient(135deg,rgba(26,48,96,0.9),rgba(10,22,40,0.9));border-color:rgba(74,158,255,0.3);">
     <div style="font-size:11px;font-weight:700;letter-spacing:2px;color:var(--gold);margin-bottom:6px;text-transform:uppercase;">Carb Calculator</div>
-    <div style="font-size:13px;color:var(--silver-bright);line-height:1.6;">
+    <div style="font-size:15px;color:var(--silver-bright);line-height:1.6;">
       Take a photo to auto-detect foods, <strong style="color:var(--accent)">or</strong> search and add foods manually. All nutrition data is built-in — works fully offline.
     </div>
   </div>
@@ -955,7 +955,7 @@
   <!-- PHOTO + RECOGNITION -->
   <div class="card">
     <div class="card-title">Photo Recognition</div>
-    <div id="tfStatus" style="font-size:11px;color:var(--silver-dim);margin-bottom:10px;text-align:center;">Tap the camera to get started</div>
+    <div id="tfStatus" style="font-size:13px;color:var(--silver-dim);margin-bottom:10px;text-align:center;">Tap the camera to get started</div>
     <div class="scan-upload-box" onclick="document.getElementById('carbScanInput').click()">
       <div class="scan-icon" id="scanPhotoIcon">&#128247;</div>
       <div class="scan-label" id="scanPhotoLabel"><strong>Tap to photograph your meal</strong></div>
@@ -965,7 +965,7 @@
     <img id="carbScanPreview" class="scan-preview" alt="Meal photo" style="display:none;margin-top:10px;">
     <div id="recognitionLoading" style="display:none;text-align:center;padding:16px;">
       <div class="spinner" style="margin:0 auto 10px;"></div>
-      <div style="font-size:12px;color:var(--silver-dim);">Recognizing foods on your plate...</div>
+      <div style="font-size:14px;color:var(--silver-dim);">Recognizing foods on your plate...</div>
     </div>
     <div id="recognitionResults" style="display:none;margin-top:12px;">
       <div style="font-size:11px;font-weight:700;letter-spacing:1px;color:var(--gold);text-transform:uppercase;margin-bottom:8px;">Foods detected — tap to add:</div>
@@ -980,13 +980,13 @@
       <input type="text" id="foodSearchInput" placeholder="Search: bread, chicken, apple, rice..." oninput="searchFoods(this.value)">
       <div id="foodSearchResults" style="display:none;position:absolute;left:0;right:0;top:44px;background:var(--navy-mid);border:1px solid var(--border);border-radius:0 0 8px 8px;z-index:200;max-height:200px;overflow-y:auto;box-shadow:0 8px 24px rgba(0,0,0,0.4);"></div>
     </div>
-    <div style="font-size:11px;color:var(--silver-dim);margin-bottom:12px;">Tap a result to add it. Adjust servings with + and - buttons.</div>
-    <div id="noFoodsMsg" style="font-size:12px;color:var(--silver-dim);text-align:center;padding:12px 0;">No foods added yet.</div>
+    <div style="font-size:13px;color:var(--silver-dim);margin-bottom:12px;">Tap a result to add it. Adjust servings with + and - buttons.</div>
+    <div id="noFoodsMsg" style="font-size:14px;color:var(--silver-dim);text-align:center;padding:12px 0;">No foods added yet.</div>
     <div id="addedFoodsList"></div>
 
     <div style="margin-top:14px;border-top:1px solid var(--border);padding-top:14px;">
       <div style="font-size:11px;font-weight:700;letter-spacing:1px;color:var(--gold);text-transform:uppercase;margin-bottom:10px;">Add Food Manually</div>
-      <div style="font-size:11px;color:var(--silver-dim);margin-bottom:10px;">Can not find a food? Enter it directly below.</div>
+      <div style="font-size:13px;color:var(--silver-dim);margin-bottom:10px;">Can not find a food? Enter it directly below.</div>
       <input type="text" id="manualFoodName" placeholder="Food name (e.g. Homemade chili)" style="margin-bottom:8px;">
       <input type="text" id="manualServing" placeholder="Serving size (e.g. 1 cup)" style="margin-bottom:8px;">
       <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;margin-bottom:10px;">
@@ -995,15 +995,15 @@
           <input type="number" id="manualCarbs" placeholder="0" min="0" max="300" step="1">
         </div>
         <div>
-          <label style="font-size:10px;color:var(--silver-dim);">Cal</label>
+          <label style="font-size:14px;color:var(--silver-dim);">Cal</label>
           <input type="number" id="manualCal" placeholder="0" min="0" max="2000" step="1">
         </div>
         <div>
-          <label style="font-size:10px;color:var(--silver-dim);">Protein (g)</label>
+          <label style="font-size:14px;color:var(--silver-dim);">Protein (g)</label>
           <input type="number" id="manualPro" placeholder="0" min="0" max="200" step="1">
         </div>
         <div>
-          <label style="font-size:10px;color:var(--silver-dim);">Fat (g)</label>
+          <label style="font-size:14px;color:var(--silver-dim);">Fat (g)</label>
           <input type="number" id="manualFat" placeholder="0" min="0" max="200" step="1">
         </div>
       </div>
@@ -1032,7 +1032,7 @@
         <div class="scan-result-lbl">Fat (g)</div>
       </div>
     </div>
-    <div id="scanCarbTarget" style="margin-top:10px;font-size:12px;color:var(--silver-dim);text-align:center;line-height:1.6;"></div>
+    <div id="scanCarbTarget" style="margin-top:10px;font-size:14px;color:var(--silver-dim);text-align:center;line-height:1.6;"></div>
     <div style="display:flex;gap:8px;margin-top:14px;">
       <button class="btn btn-primary" id="btnSaveMeal" style="margin-top:0;" onclick="saveScanResult()">Save Meal</button>
       <button class="btn" style="margin-top:0;background:var(--navy-light);border:1px solid var(--border);color:var(--silver);flex:1;" onclick="resetCarbScan()">Clear</button>
@@ -1042,7 +1042,7 @@
   <!-- HISTORY -->
   <div class="card">
     <div class="card-title">Saved Meals</div>
-    <div id="carbScanHistory"><div style="font-size:13px;color:var(--silver-dim);text-align:center;padding:16px;">No meals saved yet.</div></div>
+    <div id="carbScanHistory"><div style="font-size:14px;color:var(--silver-dim);text-align:center;padding:16px;">No meals saved yet.</div></div>
   </div>
 
   <div class="page-footer"></div>
@@ -1393,7 +1393,7 @@ function renderDashboard() {
       const sign = chg > 0 ? '+' : '';
       chgHtml = '<span class="weight-entry-change ' + cls + '">' + sign + chg.toFixed(1) + '</span>';
     }
-    html += '<div class="weight-entry"><span class="weight-entry-date">' + fmtDate(e.date) + '</span><span class="weight-entry-val">' + e.weight.toFixed(1) + ' <small style="font-size:13px;color:var(--silver-dim)">lbs</small></span>' + chgHtml + '</div>';
+    html += '<div class="weight-entry"><span class="weight-entry-date">' + fmtDate(e.date) + '</span><span class="weight-entry-val">' + e.weight.toFixed(1) + ' <small style="font-size:14px;color:var(--silver-dim)">lbs</small></span>' + chgHtml + '</div>';
   });
   document.getElementById('dashRecentWeights').innerHTML = html;
 }
@@ -1414,9 +1414,9 @@ function renderWeightHistory() {
       const sign = chg > 0 ? '+' : '';
       chgHtml = '<span class="weight-entry-change ' + cls + '">' + sign + chg.toFixed(1) + '</span>';
     }
-    const waistStr = e.waist ? '<br><span style="font-size:11px;color:var(--silver-dim)">Waist: ' + e.waist + '"</span>' : '';
-    const noteStr = e.note ? '<br><span style="font-size:11px;color:var(--silver-dim)">' + e.note + '</span>' : '';
-    html += '<div class="weight-entry" style="flex-wrap:wrap;"><span class="weight-entry-date">' + fmtDate(e.date) + waistStr + noteStr + '</span><span class="weight-entry-val">' + e.weight.toFixed(1) + '<small style="font-size:13px;color:var(--silver-dim)"> lbs</small></span>' + chgHtml + '<button class="btn-sm btn-danger" style="font-size:10px;padding:4px 8px;margin-left:6px;" onclick="deleteWeight(\'' + e.date + '\')">X</button></div>';
+    const waistStr = e.waist ? '<br><span style="font-size:13px;color:var(--silver-dim)">Waist: ' + e.waist + '"</span>' : '';
+    const noteStr = e.note ? '<br><span style="font-size:13px;color:var(--silver-dim)">' + e.note + '</span>' : '';
+    html += '<div class="weight-entry" style="flex-wrap:wrap;"><span class="weight-entry-date">' + fmtDate(e.date) + waistStr + noteStr + '</span><span class="weight-entry-val">' + e.weight.toFixed(1) + '<small style="font-size:14px;color:var(--silver-dim)"> lbs</small></span>' + chgHtml + '<button class="btn-sm btn-danger" style="font-size:10px;padding:4px 8px;margin-left:6px;" onclick="deleteWeight(\'' + e.date + '\')">X</button></div>';
   });
   document.getElementById('weightHistory').innerHTML = html;
 }
@@ -1632,7 +1632,7 @@ function renderPhotos() {
       '<img src="' + p.data + '" alt="' + p.label + '" loading="lazy">' +
       '<div class="photo-meta">' +
         '<div class="photo-date">' + fmtDate(p.date) + '</div>' +
-        '<div style="font-size:11px;color:var(--silver-dim);">' + p.label + '</div>' +
+        '<div style="font-size:13px;color:var(--silver-dim);">' + p.label + '</div>' +
         (wStr ? '<div class="photo-weight">' + wStr + '</div>' : '') +
       '</div>' +
       '<div class="photo-actions">' +
@@ -1682,7 +1682,7 @@ function showHabitWeek(week) {
   DAYS.forEach((day, di) => {
     cols.forEach(col => { if (data[week + '_' + di + '_' + col]) total++; });
   });
-  document.getElementById('habitHistory').innerHTML = '<strong style="color:var(--accent)">Week of ' + fmtDate(week) + '</strong><br><span style="font-size:12px;color:var(--silver-dim);">Completed ' + total + ' / ' + possible + ' habits (' + Math.round(total/possible*100) + '%)</span>';
+  document.getElementById('habitHistory').innerHTML = '<strong style="color:var(--accent)">Week of ' + fmtDate(week) + '</strong><br><span style="font-size:14px;color:var(--silver-dim);">Completed ' + total + ' / ' + possible + ' habits (' + Math.round(total/possible*100) + '%)</span>';
 }
 
 // ═══════════════════════════ GLUCOSE ═══════════════════════════
@@ -1928,7 +1928,7 @@ function showWeek(week, el) {
 
 function renderMeals(week) {
   const data = MEALS[week];
-  let html = '<div style="font-size:11px;color:var(--silver-dim);margin-bottom:10px;text-align:center;letter-spacing:0.5px;">Tap any meal name to see its full recipe card</div>';
+  let html = '<div style="font-size:13px;color:var(--silver-dim);margin-bottom:10px;text-align:center;letter-spacing:0.5px;">Tap any meal name to see its full recipe card</div>';
   html += '<div class="card"><div class="card-title">Week ' + week + ' - Breakfasts &amp; Lunches</div>';
   DAYS.forEach((day, i) => {
     html += '<div class="meal-day"><div class="meal-day-name">' + day + '</div>';
@@ -2004,7 +2004,7 @@ function renderMealModal(r, mealType) {
   var html = '';
 
   // Meta row
-  html += '<div style="display:flex;gap:14px;margin-bottom:14px;font-size:12px;color:var(--silver-dim);">';
+  html += '<div style="display:flex;gap:14px;margin-bottom:14px;font-size:14px;color:var(--silver-dim);">';
   html += '<span>1 serving</span>';
   html += '<span>Prep: ' + r.prepTime + '</span>';
   html += '<span>Cook: ' + r.cookTime + '</span>';
@@ -2026,7 +2026,7 @@ function renderMealModal(r, mealType) {
     html += '<div class="nutr-box">';
     html += '<div class="nutr-val">' + numPart + '</div>';
     if (unitPart) {
-      html += '<div style="font-size:10px;color:var(--silver-dim);margin-top:-2px;letter-spacing:1px;">' + unitPart + '</div>';
+      html += '<div style="font-size:14px;color:var(--silver-dim);margin-top:-2px;letter-spacing:1px;">' + unitPart + '</div>';
     }
     html += '<div class="nutr-lbl">' + m[0] + '</div>';
     html += '</div>';
@@ -2035,11 +2035,11 @@ function renderMealModal(r, mealType) {
 
   if (n.fiber) {
     var netCarbs = Math.max(0, n.carbs - n.fiber);
-    html += '<div style="font-size:11px;color:var(--silver-dim);margin-bottom:12px;text-align:right;">Fiber: ' + n.fiber + 'g &nbsp;|&nbsp; Net carbs: ' + netCarbs + 'g</div>';
+    html += '<div style="font-size:13px;color:var(--silver-dim);margin-bottom:12px;text-align:right;">Fiber: ' + n.fiber + 'g &nbsp;|&nbsp; Net carbs: ' + netCarbs + 'g</div>';
   }
 
   // Plate rule reminder
-  html += '<div style="background:rgba(74,158,255,0.06);border-radius:8px;padding:8px 12px;margin-bottom:14px;font-size:11px;color:var(--silver-dim);">';
+  html += '<div style="background:rgba(74,158,255,0.06);border-radius:8px;padding:8px 12px;margin-bottom:14px;font-size:13px;color:var(--silver-dim);">';
   html += '<strong style="color:var(--silver)">Plate Rule:</strong> Half vegetables &nbsp;|&nbsp; Quarter protein &nbsp;|&nbsp; Quarter carb</div>';
 
   // Ingredients table
@@ -2062,7 +2062,7 @@ function renderMealModal(r, mealType) {
   });
 
   // Carb target
-  html += '<div style="background:rgba(240,192,64,0.06);border-radius:8px;padding:8px 12px;margin:14px 0 0;font-size:11px;color:var(--silver-dim);">';
+  html += '<div style="background:rgba(240,192,64,0.06);border-radius:8px;padding:8px 12px;margin:14px 0 0;font-size:13px;color:var(--silver-dim);">';
   html += '<strong style="color:var(--gold)">Plan Target:</strong> ' + carbTarget + ' carbs for this meal type</div>';
 
   // Diabetes tip
@@ -2490,7 +2490,7 @@ function renderExercise() {
     phase.schedule.forEach(function(item) {
       phaseHtml += '<div style="margin-bottom:8px;">';
       phaseHtml += '<span style="font-size:10px;font-weight:700;letter-spacing:1px;color:var(--gold);text-transform:uppercase;">' + item.type + '</span>';
-      phaseHtml += '<div style="font-size:13px;color:var(--silver-bright);margin-top:2px;line-height:1.5;">' + item.detail + '</div>';
+      phaseHtml += '<div style="font-size:15px;color:var(--silver-bright);margin-top:2px;line-height:1.5;">' + item.detail + '</div>';
       phaseHtml += '</div>';
     });
     phaseHtml += '</div>';
@@ -2503,7 +2503,7 @@ function renderExercise() {
     // Category header
     libHtml += '<div style="margin-bottom:6px;margin-top:' + (ci > 0 ? '18px' : '0') + ';">';
     libHtml += '<div style="font-family:Bebas Neue,sans-serif;font-size:14px;letter-spacing:2px;color:' + cat.color + ';padding:8px 0 4px;border-bottom:1px solid rgba(255,255,255,0.08);">' + cat.name + '</div>';
-    libHtml += '<div style="font-size:11px;color:var(--silver-dim);line-height:1.5;padding:6px 0 8px;">' + cat.note + '</div>';
+    libHtml += '<div style="font-size:13px;color:var(--silver-dim);line-height:1.5;padding:6px 0 8px;">' + cat.note + '</div>';
     libHtml += '</div>';
 
     cat.exercises.forEach(function(ex, ei) {
@@ -2514,7 +2514,7 @@ function renderExercise() {
       libHtml += '<span style="font-size:14px;font-weight:700;color:var(--silver-bright);">' + ex.name + '</span>';
       libHtml += '<span class="toggle" style="font-size:20px;color:' + cat.color + ';">+</span>';
       libHtml += '</div>';
-      libHtml += '<div style="font-size:10px;color:var(--silver-dim);letter-spacing:0.5px;">' + ex.target + ' &nbsp;|&nbsp; ' + ex.phase + '</div>';
+      libHtml += '<div style="font-size:14px;color:var(--silver-dim);letter-spacing:0.5px;">' + ex.target + ' &nbsp;|&nbsp; ' + ex.phase + '</div>';
       libHtml += '</div>';
 
       libHtml += '<div class="recipe-body" id="' + id + '">';
@@ -2557,7 +2557,7 @@ function renderRecipes() {
     html += '<div class="recipe-body" id="recipe-' + ri + '">';
     html += '<div class="recipe-section">Ingredients</div><ul>' + r.ingredients.map(function(i) { return '<li>' + i + '</li>'; }).join('') + '</ul>';
     html += '<div class="recipe-section">Steps</div>' + r.steps.map(function(s, si) { return '<div class="recipe-step"><span class="step-num">' + (si+1) + '</span><span>' + s + '</span></div>'; }).join('');
-    if (r.storage) html += '<div class="recipe-section">Storage</div><div style="font-size:13px;color:var(--silver-bright);">' + r.storage + '</div>';
+    if (r.storage) html += '<div class="recipe-section">Storage</div><div style="font-size:15px;color:var(--silver-bright);">' + r.storage + '</div>';
     html += '</div></div>';
   });
   document.getElementById('recipesContent').innerHTML = html;
@@ -2597,7 +2597,7 @@ function renderReflections() {
   if (state.reflections.length === 0) { container.innerHTML = '<div style="color:var(--silver-dim);font-size:13px;">No reflections saved yet.</div>'; return; }
   const qs = ['Meals that kept you full','Easiest to prep','Biggest glucose rise','Best for back and hips','Repeat next week'];
   container.innerHTML = [...state.reflections].reverse().map(function(r) {
-    return '<div style="border-bottom:1px solid var(--border);padding:12px 0;margin-bottom:8px;"><div style="font-family:Bebas Neue,sans-serif;font-size:15px;letter-spacing:2px;color:var(--accent);margin-bottom:8px;">Week of ' + fmtDate(r.date) + '</div>' + qs.map(function(q, i) { return r['q'+(i+1)] ? '<div style="font-size:11px;color:var(--gold);font-weight:700;letter-spacing:0.5px;margin-top:8px;">' + q + '</div><div style="font-size:13px;color:var(--silver-bright);margin-top:3px;">' + r['q'+(i+1)] + '</div>' : ''; }).join('') + '</div>';
+    return '<div style="border-bottom:1px solid var(--border);padding:12px 0;margin-bottom:8px;"><div style="font-family:Bebas Neue,sans-serif;font-size:15px;letter-spacing:2px;color:var(--accent);margin-bottom:8px;">Week of ' + fmtDate(r.date) + '</div>' + qs.map(function(q, i) { return r['q'+(i+1)] ? '<div style="font-size:11px;color:var(--gold);font-weight:700;letter-spacing:0.5px;margin-top:8px;">' + q + '</div><div style="font-size:15px;color:var(--silver-bright);margin-top:3px;">' + r['q'+(i+1)] + '</div>' : ''; }).join('') + '</div>';
   }).join('');
 }
 
@@ -2839,7 +2839,7 @@ function showRecognitionResults(detected) {
   var resultsDiv = document.getElementById('recognitionResults');
 
   if (detected.length === 0) {
-    container.innerHTML = '<div style="font-size:12px;color:var(--silver-dim);padding:8px 0;">Could not auto-detect foods in this photo. Please use the search below to add foods manually.</div>';
+    container.innerHTML = '<div style="font-size:14px;color:var(--silver-dim);padding:8px 0;">Could not auto-detect foods in this photo. Please use the search below to add foods manually.</div>';
     resultsDiv.style.display = 'block';
     return;
   }
@@ -2851,12 +2851,12 @@ function showRecognitionResults(detected) {
     html += '<div onclick="addFood(' + d.dbIdx + ')" style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;margin-bottom:6px;background:rgba(74,158,255,0.06);border:1px solid rgba(74,158,255,0.2);border-radius:8px;cursor:pointer;">';
     html += '<div>';
     html += '<div style="font-size:13px;font-weight:700;color:var(--silver-bright);">' + f[0] + '</div>';
-    html += '<div style="font-size:11px;color:var(--silver-dim);">' + f[1] + ' &nbsp;|&nbsp; ' + pct + '% confidence</div>';
+    html += '<div style="font-size:13px;color:var(--silver-dim);">' + f[1] + ' &nbsp;|&nbsp; ' + pct + '% confidence</div>';
     html += '</div>';
     html += '<div style="text-align:right;">';
     var netCr = Math.max(0, f[2] - f[6]);
     html += '<div style="font-family:Bebas Neue,sans-serif;font-size:20px;color:var(--gold);line-height:1;">' + f[2] + '</div>';
-    html += '<div style="font-size:9px;color:var(--silver-dim);letter-spacing:0.5px;">CARBS g</div>';
+    html += '<div style="font-size:13px;color:var(--silver-dim);letter-spacing:0.5px;">CARBS g</div>';
     html += '<div style="font-size:9px;color:var(--accent);">net ' + netCr + 'g</div>';
     html += '<div style="font-size:9px;color:#4affb0;">' + f[4] + 'g pro</div>';
     html += '<div style="font-size:9px;color:var(--accent);margin-top:2px;">TAP TO ADD</div>';
@@ -3287,11 +3287,11 @@ function searchFoods(query) {
     var netCarbs = Math.max(0, f[2] - f[6]);
     html += '<div onclick="addFood(' + x.i + ')" style="padding:10px 14px;border-bottom:1px solid var(--border);cursor:pointer;">';
     html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">';
-    html += '<div><div style="font-size:13px;color:var(--silver-bright);font-weight:600;">' + f[0] + '</div>';
-    html += '<div style="font-size:10px;color:var(--silver-dim);">' + f[1] + '</div></div>';
+    html += '<div><div style="font-size:15px;color:var(--silver-bright);font-weight:600;">' + f[0] + '</div>';
+    html += '<div style="font-size:14px;color:var(--silver-dim);">' + f[1] + '</div></div>';
     html += '<div style="font-family:Bebas Neue,sans-serif;font-size:20px;color:var(--gold);text-align:right;line-height:1;">' + f[2] + '<div style="font-size:9px;font-family:Montserrat,sans-serif;color:var(--silver-dim);letter-spacing:0.5px;">CARBS g</div></div>';
     html += '</div>';
-    html += '<div style="display:flex;gap:10px;font-size:10px;color:var(--silver-dim);">';
+    html += '<div style="display:flex;gap:10px;font-size:14px;color:var(--silver-dim);">';
     html += '<span>' + f[3] + ' cal</span>';
     html += '<span style="color:#4affb0;">' + f[4] + 'g pro</span>';
     html += '<span style="color:#ff9a4a;">' + f[5] + 'g fat</span>';
@@ -3361,13 +3361,13 @@ function updateFoodList() {
     html += '<div style="border-bottom:1px solid var(--border);padding:10px 0;">';
     html += '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">';
     html += '<div><div style="font-size:13px;font-weight:600;color:var(--silver-bright);">' + item.name + '</div>';
-    html += '<div style="font-size:11px;color:var(--silver-dim);">' + servingLabel + '</div></div>';
+    html += '<div style="font-size:13px;color:var(--silver-dim);">' + servingLabel + '</div></div>';
     html += '<div style="display:flex;align-items:center;gap:6px;">';
     html += '<span style="font-family:Bebas Neue,sans-serif;font-size:20px;color:var(--gold);">' + carbs + 'g</span>';
     html += '<button onclick="removeFood(' + idx + ')" style="background:rgba(255,74,106,0.15);border:1px solid rgba(255,74,106,0.3);color:var(--danger);border-radius:4px;padding:2px 8px;font-size:14px;cursor:pointer;font-family:Montserrat,sans-serif;">x</button>';
     html += '</div></div>';
     html += '<div style="display:flex;gap:8px;align-items:center;">';
-    html += '<span style="font-size:11px;color:var(--silver-dim);">Servings:</span>';
+    html += '<span style="font-size:13px;color:var(--silver-dim);">Servings:</span>';
     html += '<button onclick="changeServings(' + idx + ',-0.25)" style="background:var(--navy-light);border:1px solid var(--border);color:var(--silver);border-radius:4px;padding:2px 10px;font-size:16px;cursor:pointer;">-</button>';
     html += '<span style="font-size:14px;font-weight:700;color:var(--silver);min-width:28px;text-align:center;">' + m + '</span>';
     html += '<button onclick="changeServings(' + idx + ',0.25)" style="background:var(--navy-light);border:1px solid var(--border);color:var(--silver);border-radius:4px;padding:2px 10px;font-size:16px;cursor:pointer;">+</button>';
@@ -3506,7 +3506,7 @@ function resetCarbScan() {
 function renderCarbScanHistory() {
   var container = document.getElementById('carbScanHistory');
   if (!state.carbScans || state.carbScans.length === 0) {
-    container.innerHTML = '<div style="font-size:13px;color:var(--silver-dim);text-align:center;padding:16px;">No meals saved yet.</div>';
+    container.innerHTML = '<div style="font-size:14px;color:var(--silver-dim);text-align:center;padding:16px;">No meals saved yet.</div>';
     return;
   }
   var html = '';
@@ -3526,13 +3526,13 @@ function renderCarbScanHistory() {
 
     // Details
     html += '<div style="flex:1;min-width:0;">';
-    html += '<div style="font-size:10px;color:var(--silver-dim);letter-spacing:1px;">' + fmtDate(scan.date) + ' at ' + scan.time + '</div>';
+    html += '<div style="font-size:14px;color:var(--silver-dim);letter-spacing:1px;">' + fmtDate(scan.date) + ' at ' + scan.time + '</div>';
     html += '<div style="font-size:12px;color:var(--silver-bright);margin:3px 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">';
     scan.foods.forEach(function(f) { html += f.name + (f.mult !== 1 ? ' x' + f.mult : '') + '  '; });
     html += '</div>';
     html += '<div style="display:flex;align-items:center;gap:12px;margin-top:4px;flex-wrap:wrap;">';
     html += '<span style="font-family:Bebas Neue,sans-serif;font-size:20px;color:var(--gold);">' + scan.totals.carbs + 'g <span style="font-size:10px;font-family:Montserrat,sans-serif;color:var(--silver-dim);">carbs</span></span>';
-    html += '<span style="font-size:12px;color:var(--silver-dim);">' + scan.totals.cal + ' cal</span>';
+    html += '<span style="font-size:14px;color:var(--silver-dim);">' + scan.totals.cal + ' cal</span>';
     html += '</div></div>';
 
     // Delete button — right aligned
